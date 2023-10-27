@@ -65,7 +65,8 @@ let settings = "";
 
 console.log("Starting Cacheturassistenten V. " + GM_info.script.version);
 let pathname = window.location.pathname;
-let domain = document.domain;
+// let domain = document.domain; deprecated, should be working but not recommended
+let domain = window.location.hostname;
 let href = window.location.href;
 
 if (domain === "www.geocaching.com") {
