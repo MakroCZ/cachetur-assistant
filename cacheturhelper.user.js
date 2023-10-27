@@ -69,7 +69,7 @@ let pathname = window.location.pathname;
 let domain = document.domain;
 let href = window.location.href;
 
-if (domain === "www.geocaching.com" || domain === "www.geocaching.com") {
+if (domain === "www.geocaching.com") {
     if (pathname.indexOf("/seek/") > -1) _ctPage = "gc_geocache";
     else if (pathname.indexOf("/plan/lists") > -1) _ctPage = "gc_bmlist";
     else if (pathname.indexOf("/geocache/") > -1) _ctPage = "gc_geocache";
