@@ -5,11 +5,15 @@ The script is tested on the newest version of Tampermonkey and Chrome.
 The Cachetur Assistant should also work with the newest version of Tampermonkey and FireFox or in other browsers TamperMonkey support (Edge, Opera Next, Dolphin and UC).
 Safari browser is not supported due to restrictions set by Apple
 
- This script will only work if you select Leaflet as your map provider on geocaching.com.
- 
- Times posted are UTC+1 times
+This script will only work if you select Leaflet as your map provider on geocaching.com.
+
+## Installation
+To install the script, click the `cacheturhelper.user.js` in GitHub and then click the **`Raw`** button. Your userscript manager should automatically give you the option to install the script. Alternatively, you can just follow the link below:
+
+**[Install Cachetur assistant](https://github.com/MakroCZ/cachetur-assistant/raw/master/cacheturhelper.user.js)**
  
 ## Release notes
+Times posted are UTC+1 times
 
 ### Version 3.5.1.03
 Monday 6. Feb 2023 20:33
