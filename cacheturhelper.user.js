@@ -50,7 +50,6 @@
 /* globals jQuery, $, waitForKeyElements, L, i18next, i18nextXHRBackend, i18nextBrowserLanguageDetector, cloneInto, gm_config */
 
 this.$ = this.jQuery = jQuery.noConflict(true);
-let path = window.location.pathname;
 let _ctLastCount = 0;
 let _ctCacheturUser = "";
 let _ctLanguage = "";
@@ -78,9 +77,9 @@ if (domain === "www.geocaching.com") {
     else if (pathname.indexOf("/play/geotours/") > -1) _ctPage = "gc_geotour";
 } else if (href.indexOf("/html/") > -1) {
     _ctPage = "gsak";
-} else if (path.match(/^\/bobilplasser\/*/) !== null) {
+} else if (pathname.match(/^\/bobilplasser\/*/) !== null) {
     _ctPage = "bobil";
-} else if (path.match(/^\/fellestur\/*/) !== null) {
+} else if (pathname.match(/^\/fellestur\/*/) !== null) {
     _ctPage = "fellestur";
 } else if (
     domain === "project-gc.com" &&
