@@ -92,7 +92,10 @@ else if (domain === "project-gc.com") {
     _ctPage = "pgc_map";
 }
 
-window.onload = function () {
+// window.onLoad This removes all other listeners on this
+
+window.addEventListener("load", windowLoaded);
+function windowLoaded() {
     console.log("Running in " + _ctPage + " mode");
 
     function gorgon() {
