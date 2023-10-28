@@ -117,6 +117,7 @@ function windowLoaded() {
             }
         );
     }
+
     if (_ctPage === "gc_map_new") {
         console.log(
             "Doing dirty trick to take over Geocaching.com's leaflet object"
