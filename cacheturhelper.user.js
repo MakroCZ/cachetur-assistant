@@ -11,8 +11,6 @@
 // @match           http://www.geocaching.com/play/map*
 // @match           https://www.geocaching.com/map/*
 // @match           http://www.geocaching.com/map/*
-// @match           https://www.geocaching.com/play/map*
-// @match           http://www.geocaching.com/play/map*
 // @match           https://www.geocaching.com/geocache/*
 // @match           http://www.geocaching.com/geocache/*
 // @match           https://www.geocaching.com/seek/cache_details.aspx*
