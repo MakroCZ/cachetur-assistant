@@ -40,12 +40,11 @@
 // @require         https://unpkg.com/i18next@22.4.9/i18next.min.js
 // @require         https://unpkg.com/i18next-xhr-backend@3.2.2/i18nextXHRBackend.js
 // @require         https://unpkg.com/i18next-browser-languagedetector@7.0.1/i18nextBrowserLanguageDetector.js
-// @require         https://gist.github.com/raw/2625891/waitForKeyElements.js
 // @updateURL       https://github.com/cachetur-no/cachetur-assistant/raw/master/cacheturhelper.meta.js
 // @downloadURL     https://github.com/cachetur-no/cachetur-assistant/raw/master/cacheturhelper.user.js
 // @supportURL      https://github.com/cachetur-no/cachetur-assistant/issues
 // ==/UserScript==
-/* globals jQuery, $, waitForKeyElements, L, i18next, i18nextXHRBackend, i18nextBrowserLanguageDetector, cloneInto, gm_config */
+/* globals jQuery, $, L, i18next, i18nextXHRBackend, i18nextBrowserLanguageDetector, cloneInto, gm_config */
 
 this.$ = this.jQuery = jQuery.noConflict(true);
 let _ctLastCount = 0;
@@ -60,6 +59,26 @@ let _initialized = false;
 let _ctNewMapActiveCache = "";
 let _codenm = "";
 let settings = "";
+
+function waitForElement(selector) {
+    return new Promise((resolve) => {
+        if (document.querySelector(selector)) {
+            return resolve(document.querySelector(selector));
+        }
+
+        const observer = new MutationObserver((mutations) => {
+            if (document.querySelector(selector)) {
+                observer.disconnect();
+                resolve(document.querySelector(selector));
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+    });
+}
 
 console.log("Starting Cacheturassistenten V. " + GM_info.script.version);
 let pathname = window.location.pathname;
@@ -580,7 +599,7 @@ function windowLoaded() {
         _initialized = true;
     }
 
-    function ctInitNotLoggedIn() {
+    async function ctInitNotLoggedIn() {
         if (_initialized) return;
         if (
             _ctPage === "gc_geocache" ||
@@ -656,7 +675,7 @@ function windowLoaded() {
         _initialized = true;
     }
 
-    function ctInitInactive() {
+    async function ctInitInactive() {
         if (_initialized) return;
         console.log("Assistant not being actively used, disabling");
         if (
@@ -732,7 +751,6 @@ function windowLoaded() {
 
     function ctPrependToHeader(data) {
         console.log("Injecting cachetur.no in menu");
-        waitForKeyElements("div.user-menu");
         $(".hamburger--squeeze").remove();
         let header;
         if (_ctPage === "gc_map") header = $(".user-menu");
@@ -788,7 +806,7 @@ function windowLoaded() {
         }
     }
 
-    function ctPrependTouser(data) {
+    async function ctPrependTouser(data) {
         let header;
         if (
             _ctPage === "gc_map" ||
@@ -801,14 +819,13 @@ function windowLoaded() {
 
         if (header) {
             header.append(data);
-            waitForKeyElements("#pgc", function () {
-                $("#cachetur-header1").remove();
-                $("#cachetur-header1").remove();
-            });
+            waitForElement("#pgc");
+            $("#cachetur-header1").remove();
+            $("#cachetur-header1").remove();
         }
     }
 
-    function ctPrependTousergorgon2(data) {
+    async function ctPrependTousergorgon2(data) {
         let header;
         if (
             _ctPage === "gc_map" ||
@@ -821,14 +838,13 @@ function windowLoaded() {
 
         if (header) {
             header.append(data);
-            waitForKeyElements("#pgc", function () {
-                $("#cachetur-header2").remove();
-                $("#cachetur-header2").remove();
-            });
+            await waitForElement("#pgc");
+            $("#cachetur-header2").remove();
+            $("#cachetur-header2").remove();
         }
     }
 
-    function ctPrependTousergclh(data) {
+    async function ctPrependTousergclh(data) {
         let header;
         if (
             _ctPage === "gc_map" ||
@@ -841,13 +857,12 @@ function windowLoaded() {
 
         if (header) {
             header.append(data);
-            waitForKeyElements("#pgc_gclh", function () {
-                $("#cachetur-header2").remove();
-            });
+            await waitForElement("#pgc_gclh");
+            $("#cachetur-header2").remove();
         }
     }
 
-    function ctPrependTousergorgon(data) {
+    async function ctPrependTousergorgon(data) {
         let header;
         if (
             _ctPage === "gc_map" ||
@@ -860,9 +875,8 @@ function windowLoaded() {
 
         if (header) {
             header.append(data);
-            waitForKeyElements("#pgc_gclh", function () {
-                $("#cachetur-header1").remove();
-            });
+            await waitForElement("#pgc_gclh");
+            $("#cachetur-header1").remove();
         }
     }
 
@@ -873,7 +887,7 @@ function windowLoaded() {
             {
                 includetemplates: "true",
             },
-            function (available) {
+            async function (available) {
                 let options = "";
 
                 if (available.length > 0) {
@@ -1420,7 +1434,7 @@ function windowLoaded() {
         }
     }
 
-    function ctInitAddLinks() {
+    async function ctInitAddLinks() {
         if (_ctCacheturUser === "") return;
 
         switch (_ctPage) {
@@ -1442,13 +1456,12 @@ function windowLoaded() {
                         "script[src*='//maps.googleapis.com/']"
                     )
                 ) {
-                    waitForKeyElements(".map-cta", function () {
-                        $(".map-wrapper").append(
-                            '<large style="color: red; position: absolute; top: 62px; right: 25px;">' +
-                                i18next.t("alerts.google") +
-                                "</large>"
-                        );
-                    });
+                    await waitForElement(".map-cta");
+                    $(".map-wrapper").append(
+                        '<large style="color: red; position: absolute; top: 62px; right: 25px;">' +
+                            i18next.t("alerts.google") +
+                            "</large>"
+                    );
                     tvinfostart();
                     return;
                 }
@@ -1460,13 +1473,12 @@ function windowLoaded() {
                     )
                 ) {
                     console.log("google map");
-                    waitForKeyElements("#clear-map-control", function () {
-                        $(".map-container").append(
-                            '<large style="color: red; position: absolute; top: 62px; right: 25px;">' +
-                                i18next.t("alerts.google") +
-                                "</large>"
-                        );
-                    });
+                    await waitForElement("#clear-map-control");
+                    $(".map-container").append(
+                        '<large style="color: red; position: absolute; top: 62px; right: 25px;">' +
+                            i18next.t("alerts.google") +
+                            "</large>"
+                    );
                     tvinfostart();
                     break;
                 }
@@ -1481,16 +1493,14 @@ function windowLoaded() {
                 );
                 break;
             case "gsak":
-                waitForKeyElements("#map", function () {
-                    ctgsakMapInit();
-                });
+                await waitForElement("#map");
+                ctgsakMapInit();
                 ctWatchgsakMap();
 
                 break;
             case "pgc_map":
-                waitForKeyElements("#map", function () {
-                    ctPGCMapInit();
-                });
+                await waitForElement("#map");
+                ctPGCMapInit();
                 break;
             case "pgc_vgps":
                 ctAddSendPgcVgpsButton();
@@ -1877,7 +1887,7 @@ function windowLoaded() {
                         .getElementById("cp_btn")
                         .addEventListener("click", clipboard);
 
-                    function clipboard() {
+                    async function clipboard() {
                         event.preventDefault();
                         var text = $("#uxLatLon").text();
                         var $temp = $("<input>");
@@ -1886,10 +1896,9 @@ function windowLoaded() {
                         document.execCommand("copy");
                         $temp.remove();
                         $("#uxLatLon").trigger("click");
-                        waitForKeyElements("#newCoordinates", function () {
-                            $("#newCoordinates").val(text);
-                            $(".btn-cc-parse").trigger("click");
-                        });
+                        await waitForElement("#newCoordinates"); // TODO: Maybe working?
+                        $("#newCoordinates").val(text);
+                        $(".btn-cc-parse").trigger("click");
                     }
                 }
             }
@@ -2094,23 +2103,22 @@ function windowLoaded() {
             });
     }
 
-    function ctAddSendListButton() {
-        waitForKeyElements(".multi-select-action-bar", function () {
-            console.log("Injecting send to cachetur button");
-            $(".multi-select-action-bar-count-section").after(
-                '<button type="button" class="cachetur-send-bmlist gc-button multi-select-action-bar-button gc-button-has-type gc-button-primary" style="margin-left: 5px;"><img src="https://cachetur.no/api/img/cachetur-15.png" title="' +
-                    i18next.t("send") +
-                    '" style="cursor: pointer;" /> ' +
-                    i18next.t("vgps.sendmarked") +
-                    "</button> "
-            );
+    async function ctAddSendListButton() {
+        await waitForElement(".multi-select-action-bar");
+        console.log("Injecting send to cachetur button");
+        $(".multi-select-action-bar-count-section").after(
+            '<button type="button" class="cachetur-send-bmlist gc-button multi-select-action-bar-button gc-button-has-type gc-button-primary" style="margin-left: 5px;"><img src="https://cachetur.no/api/img/cachetur-15.png" title="' +
+                i18next.t("send") +
+                '" style="cursor: pointer;" /> ' +
+                i18next.t("vgps.sendmarked") +
+                "</button> "
+        );
 
-            $(".cachetur-send-bmlist").click(function (evt) {
-                evt.stopImmediatePropagation();
-                evt.preventDefault();
+        $(".cachetur-send-bmlist").click(function (evt) {
+            evt.stopImmediatePropagation();
+            evt.preventDefault();
 
-                ctListSendSelected();
-            });
+            ctListSendSelected();
         });
     }
 
@@ -2150,33 +2158,29 @@ function windowLoaded() {
         }
     }
 
-    function ctCheckList() {
+    async function ctCheckList() {
         if (_ctPage !== "gc_bmlist") return;
 
-        waitForKeyElements(".geocache-table", function () {
-            $(".cachetur-bmlist-added").remove();
+        await waitForElement(".geocache-table");
+        $(".cachetur-bmlist-added").remove();
 
-            $("table.geocache-table")
-                .find("tr")
-                .each(function () {
-                    let codeInfo = $(this)
-                        .find(".geocache-code")
-                        .text()
-                        .split("|");
-                    if (codeInfo.length > 1) {
-                        let code = codeInfo[1].trim();
-                        if (ctCodeAlreadyAdded(code)) {
-                            $(this)
-                                .find(".geocache-code")
-                                .prepend(
-                                    '<img class="cachetur-bmlist-added" src="https://cachetur.no/api/img/cachetur-15-success.png" title="' +
-                                        i18next.t("sent") +
-                                        '"> '
-                                );
-                        }
+        $("table.geocache-table")
+            .find("tr")
+            .each(function () {
+                let codeInfo = $(this).find(".geocache-code").text().split("|");
+                if (codeInfo.length > 1) {
+                    let code = codeInfo[1].trim();
+                    if (ctCodeAlreadyAdded(code)) {
+                        $(this)
+                            .find(".geocache-code")
+                            .prepend(
+                                '<img class="cachetur-bmlist-added" src="https://cachetur.no/api/img/cachetur-15-success.png" title="' +
+                                    i18next.t("sent") +
+                                    '"> '
+                            );
                     }
-                });
-        });
+                }
+            });
     }
 
     function ctUpdateAddImage(codeAddedTo) {
@@ -3041,20 +3045,21 @@ function windowLoaded() {
 
     */
 
-    function tvinfostart() {
-        function waitForElement() {
-            if (typeof someVariable !== "uc3") {
+   function tvinfostart() {
+        //TODO: Get rid of this duplicated name, it is not Called
+        function waitForElementOld() {
+            if (typeof someVariable !== "uc3") { //TODO: What is someVariable?
                 if (uc3 === true) {
                     tvinfo();
                 } else {
                 }
             } else {
             }
-            setTimeout(waitForElement, 250);
+            setTimeout(waitForElementOld, 250);
         }
     }
 
-    function tvinfo() {
+    async function tvinfo() {
         if (_ctPage === "gc_geocache") {
             var resultDifficultyTerrainCaches = "";
 
@@ -3128,54 +3133,44 @@ function windowLoaded() {
                 const delay = (n) =>
                     new Promise((r) => setTimeout(r, n * 2000));
             }
-            waitForKeyElements(".cache-preview-attributes", function () {
-                var resultDifficultyTerrainCaches = "";
-                GM_xmlhttpRequest({
-                    method: "GET",
-                    url: "http://www.geocaching.com/my/statistics.aspx",
-                    onload: function (response) {
-                        obj = $.parseHTML(response.responseText);
-                        resultDifficultyTerrainCaches = $(obj).find(
-                            "#DifficultyTerrainCaches"
-                        );
-                        var D =
-                            document.querySelectorAll(".attribute-val")[0]
-                                .innerHTML;
-                        D = D.replace(",", ".");
+            await waitForElement(".cache-preview-attributes");
+            var resultDifficultyTerrainCaches = "";
+            GM_xmlhttpRequest({
+                method: "GET",
+                url: "http://www.geocaching.com/my/statistics.aspx",
+                onload: function (response) {
+                    obj = $.parseHTML(response.responseText);
+                    resultDifficultyTerrainCaches = $(obj).find(
+                        "#DifficultyTerrainCaches"
+                    );
+                    var D =
+                        document.querySelectorAll(".attribute-val")[0]
+                            .innerHTML;
+                    D = D.replace(",", ".");
 
-                        var T =
-                            document.querySelectorAll(".attribute-val")[1]
-                                .innerHTML;
-                        T = T.replace(",", ".");
+                    var T =
+                        document.querySelectorAll(".attribute-val")[1]
+                            .innerHTML;
+                    T = T.replace(",", ".");
 
-                        var nbDT = "0";
-                        if (resultDifficultyTerrainCaches !== "") {
-                            nbDT = resultDifficultyTerrainCaches
-                                .find(
-                                    "#" +
-                                        ((D - 1) * 2 + 1) +
-                                        "_" +
-                                        ((T - 1) * 2 + 1)
-                                )
-                                .text();
-                        }
+                    var nbDT = "0";
+                    if (resultDifficultyTerrainCaches !== "") {
+                        nbDT = resultDifficultyTerrainCaches
+                            .find(
+                                "#" +
+                                    ((D - 1) * 2 + 1) +
+                                    "_" +
+                                    ((T - 1) * 2 + 1)
+                            )
+                            .text();
+                    }
 
-                        if (nbDT != "0") {
-                            if (
-                                $("#GClh_II_running")[0] &&
-                                $("gclh_nav#ctl00_gcNavigation")[0]
-                            ) {
-                                $("div.cache-preview-action-menu").append(
-                                    "<div> " +
-                                        i18next.t("dt.you") +
-                                        "   " +
-                                        nbDT +
-                                        " " +
-                                        i18next.t("dt.caches") +
-                                        "</div><br>"
-                                );
-                            }
-                            $("div.header-top").append(
+                    if (nbDT != "0") {
+                        if (
+                            $("#GClh_II_running")[0] &&
+                            $("gclh_nav#ctl00_gcNavigation")[0]
+                        ) {
+                            $("div.cache-preview-action-menu").append(
                                 "<div> " +
                                     i18next.t("dt.you") +
                                     "   " +
@@ -3184,83 +3179,91 @@ function windowLoaded() {
                                     i18next.t("dt.caches") +
                                     "</div><br>"
                             );
-                        } else {
-                            if (
-                                $("#GClh_II_running")[0] &&
-                                $("gclh_nav#ctl00_gcNavigation")[0]
-                            ) {
-                                $("div.cache-preview-action-menu").append(
-                                    "<div>" + i18next.t("dt.new") + "</div>"
-                                );
-                            }
-                            $("div.header-top").append(
+                        }
+                        $("div.header-top").append(
+                            "<div> " +
+                                i18next.t("dt.you") +
+                                "   " +
+                                nbDT +
+                                " " +
+                                i18next.t("dt.caches") +
+                                "</div><br>"
+                        );
+                    } else {
+                        if (
+                            $("#GClh_II_running")[0] &&
+                            $("gclh_nav#ctl00_gcNavigation")[0]
+                        ) {
+                            $("div.cache-preview-action-menu").append(
                                 "<div>" + i18next.t("dt.new") + "</div>"
                             );
                         }
-                    },
-                });
+                        $("div.header-top").append(
+                            "<div>" + i18next.t("dt.new") + "</div>"
+                        );
+                    }
+                },
             });
         } else if (_ctPage === "gc_map") {
-            waitForKeyElements(".code", function () {
-                var resultDifficultyTerrainCaches = "";
-                GM_xmlhttpRequest({
-                    method: "GET",
-                    url: "http://www.geocaching.com/my/statistics.aspx",
-                    onload: function (response) {
-                        obj = $.parseHTML(response.responseText);
-                        resultDifficultyTerrainCaches = $(obj).find(
-                            "#DifficultyTerrainCaches"
+            await waitForElement(".code");
+            var resultDifficultyTerrainCaches = "";
+            GM_xmlhttpRequest({
+                method: "GET",
+                url: "http://www.geocaching.com/my/statistics.aspx",
+                onload: function (response) {
+                    obj = $.parseHTML(response.responseText);
+                    resultDifficultyTerrainCaches = $(obj).find(
+                        "#DifficultyTerrainCaches"
+                    );
+
+                    D = document.querySelectorAll("DD")[1].innerHTML;
+
+                    D = D.substring(
+                        D.indexOf("stars/stars") + 11,
+                        D.indexOf(".gif")
+                    );
+
+                    D = D.replace("_", ".");
+
+                    T = document.querySelectorAll("DD")[4].innerHTML;
+
+                    T = T.substring(
+                        T.indexOf("stars/stars") + 11,
+                        T.indexOf(".gif")
+                    );
+
+                    T = T.replace("_", ".");
+
+                    var nbDT = "0";
+                    if (resultDifficultyTerrainCaches !== "") {
+                        nbDT = resultDifficultyTerrainCaches
+                            .find(
+                                "#" +
+                                    ((D - 1) * 2 + 1) +
+                                    "_" +
+                                    ((T - 1) * 2 + 1)
+                            )
+                            .text();
+                    }
+
+                    if (nbDT != "0") {
+                        $("#gmCacheInfo").append(
+                            "<div>" +
+                                i18next.t("dt.you") +
+                                " " +
+                                nbDT +
+                                " " +
+                                i18next.t("dt.caches") +
+                                "</div>"
                         );
-
-                        D = document.querySelectorAll("DD")[1].innerHTML;
-
-                        D = D.substring(
-                            D.indexOf("stars/stars") + 11,
-                            D.indexOf(".gif")
+                    } else {
+                        $("#gmCacheInfo").append(
+                            "<div>" + i18next.t("dt.new") + "</div>"
                         );
-
-                        D = D.replace("_", ".");
-
-                        T = document.querySelectorAll("DD")[4].innerHTML;
-
-                        T = T.substring(
-                            T.indexOf("stars/stars") + 11,
-                            T.indexOf(".gif")
-                        );
-
-                        T = T.replace("_", ".");
-
-                        var nbDT = "0";
-                        if (resultDifficultyTerrainCaches !== "") {
-                            nbDT = resultDifficultyTerrainCaches
-                                .find(
-                                    "#" +
-                                        ((D - 1) * 2 + 1) +
-                                        "_" +
-                                        ((T - 1) * 2 + 1)
-                                )
-                                .text();
-                        }
-
-                        if (nbDT != "0") {
-                            $("#gmCacheInfo").append(
-                                "<div>" +
-                                    i18next.t("dt.you") +
-                                    " " +
-                                    nbDT +
-                                    " " +
-                                    i18next.t("dt.caches") +
-                                    "</div>"
-                            );
-                        } else {
-                            $("#gmCacheInfo").append(
-                                "<div>" + i18next.t("dt.new") + "</div>"
-                            );
-                        }
-                    },
-                });
+                    }
+                },
             });
         } else {
         }
     }
-};
+}
