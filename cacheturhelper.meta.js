@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name            The Cachetur Assistant
+// @name            The Cachetur Assistant edited
 // @name:no         Cacheturassistenten
-// @author          cachetur.no, thomfre
+// @author          cachetur.no, thomfre, Makro
 // @namespace       http://cachetur.no/
-// @version         3.5.1.03
+// @version         3.5.1.03.01
 // @description     Companion script for cachetur.no
 // @description:no  Hjelper deg å legge til cacher i cachetur.no
 // @icon            https://cachetur.net/img/logo_top.png
@@ -38,14 +38,14 @@
 // @run-at          document-end
 // @copyright       2017+, cachetur.no
 // @require         https://raw.githubusercontent.com/sizzlemctwizzle/GM_config/master/gm_config.js
-// @require        https://raw.github.com/odyniec/MonkeyConfig/master/monkeyconfig.js
+// @require         https://raw.github.com/odyniec/MonkeyConfig/master/monkeyconfig.js
 // @require         https://code.jquery.com/jquery-latest.js
 // @require         https://unpkg.com/i18next@21.8.13/i18next.min.js
 // @require         https://unpkg.com/i18next-xhr-backend@3.2.2/i18nextXHRBackend.js
 // @require         https://unpkg.com/i18next-browser-languagedetector@6.1.4/i18nextBrowserLanguageDetector.js
 // @require         https://gist.github.com/raw/2625891/waitForKeyElements.js
-// @updateURL       https://github.com/cachetur-no/cachetur-assistant/raw/master/cacheturhelper.meta.js
-// @downloadURL     https://github.com/cachetur-no/cachetur-assistant/raw/master/cacheturhelper.user.js
-// @supportURL      https://github.com/cachetur-no/cachetur-assistant/issues
+// @updateURL       https://github.com/MakroCZ/cachetur-assistant/raw/master/cacheturhelper.meta.js
+// @downloadURL     https://github.com/MakroCZ/cachetur-assistant/raw/master/cacheturhelper.user.js
+// @supportURL      https://github.com/MakroCZ/cachetur-assistant/issues
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements, L, i18next, i18nextXHRBackend, i18nextBrowserLanguageDetector, cloneInto */
