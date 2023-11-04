@@ -76,7 +76,7 @@ function waitForElement(selector) {
 }
 
 function HTMLStringToElement(string) {
-    var template = document.createElement('template');
+    var template = document.createElement("template");
     string = string.trim();
     template.innerHTML = string;
     return template.content.firstChild;
@@ -88,7 +88,6 @@ let _ctPageHandler = null;
  * "Abstract" base class for individual page handlers (GC cache detail, GC old map, GC new map, PGC, ...)
  */
 class PageHandler {
-    
     ctID;
     headerElement;
 
@@ -120,7 +119,9 @@ class PageHandler {
         if (this.headerElement) {
             return this.headerElement;
         }
-        throw Error("Header element:" + this.getHeaderSelector() + " not found");
+        throw Error(
+            "Header element:" + this.getHeaderSelector() + " not found"
+        );
     }
 
     getHeaderSelector() {
@@ -158,7 +159,7 @@ class GC_CachePageHandler extends PageHandler {
     }
 
     getHeaderSelector() {
-        return ".user-menu"
+        return ".user-menu";
     }
 }
 
@@ -496,15 +497,13 @@ if (domain === "www.geocaching.com") {
 
 window.addEventListener("load", windowLoaded);
 async function windowLoaded() {
-
     console.log("Unbinding to avoid multiple loads");
     window.removeEventListener("load", windowLoaded);
 
-    
     console.log("Waiting for needed elements defined in page handlers");
     await _ctPageHandler.waitForNeededElements();
-    console.log("Page handler has everything to allow init")
-    
+    console.log("Page handler has everything to allow init");
+
     console.log("Running in " + _ctPageHandler.get_ctID() + " mode");
 
     function gorgon() {
@@ -548,12 +547,11 @@ async function windowLoaded() {
         }
     }
 
-    $(document).ready(function () {
-        loadTranslations();
-    });
+    await loadTranslations();
 
-    function loadTranslations() {
-        i18next
+    async function loadTranslations() {
+        debugger;
+        await i18next
             .use(i18nextXHRBackend)
             .use(i18nextBrowserLanguageDetector)
             .init(
@@ -624,15 +622,16 @@ async function windowLoaded() {
                             " " +
                             i18next.resolvedLanguage
                     );
-
-                    ctStart();
-                    ctStartmenu();
                 }
             );
     }
+    debugger;
+    ctStart();
+    ctStartmenu();
 
     //Fill Menu
     function ctStartmenu() {
+        debugger;
         if ("undefined" != typeof GM_config) {
             GM_config.init({
                 id: "MyConfig",
@@ -757,6 +756,7 @@ async function windowLoaded() {
     // open new page end
 
     function ctStart() {
+        debugger;
         let lastUse = GM_getValue("cachetur_last_action", 0);
         let timeSinceLastUse = (Date.now() - lastUse) / 1000;
         console.log(
@@ -773,6 +773,7 @@ async function windowLoaded() {
     }
 
     function ctPreInit() {
+        debugger;
         console.log("Continuing init of Cacheturassistenten");
         if (_ctPageHandler === null && $(".logged-in-user").length < 1) {
             $(document).bind("DOMSubtreeModified.cachetur-init", function () {
@@ -836,7 +837,7 @@ async function windowLoaded() {
 
     function ctCheckLogin() {
         console.log("Checking login");
-
+        debugger;
         _ctCacheturUser = ctApiCall(
             "user_get_current",
             "",
@@ -974,6 +975,7 @@ async function windowLoaded() {
     }
 
     function ctInit() {
+        debugger;
         if (_initialized) return;
         console.log("Initializing Cacheturassistenten");
         ctCreateTripList();
@@ -1012,11 +1014,11 @@ async function windowLoaded() {
             });
         } else {
             ctPrependToHeader(
-                    '<li id="cachetur-header"><span id="cachetur-header-text"><a href="https://cachetur.no/" target="_blank"><img src="https://cachetur.net/img/logo_top.png" alt="cachetur.no" /> ' +
-                        i18next.t("menu.notloggedin") +
-                        "<br>" +
-                        i18next.t("menu.deactivated") +
-                        "</span></a></li>"
+                '<li id="cachetur-header"><span id="cachetur-header-text"><a href="https://cachetur.no/" target="_blank"><img src="https://cachetur.net/img/logo_top.png" alt="cachetur.no" /> ' +
+                    i18next.t("menu.notloggedin") +
+                    "<br>" +
+                    i18next.t("menu.deactivated") +
+                    "</span></a></li>"
             );
             var liText2 = "",
                 liList2 = $(".user-menu li"),
@@ -1039,6 +1041,7 @@ async function windowLoaded() {
     }
 
     async function ctInitInactive() {
+        debugger;
         if (_initialized) return;
         console.log("Assistant not being actively used, disabling");
         _ctPageHandler.ctInitInactive();
@@ -1094,7 +1097,7 @@ async function windowLoaded() {
         console.log("Injecting cachetur.no in menu");
         $(".hamburger--squeeze").remove();
         let header = _ctPageHandler.getHeaderElement();
-        
+
         if (header) {
             var element = HTMLStringToElement(data);
             header.prepend(element);
