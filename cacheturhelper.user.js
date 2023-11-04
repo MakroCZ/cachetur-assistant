@@ -8,20 +8,15 @@
 // @description:no  Hjelper deg å legge til cacher i cachetur.no
 // @icon            https://cachetur.net/img/logo_top.png
 // @match           https://www.geocaching.com/play/map*
-// @match           http://www.geocaching.com/play/map*
 // @match           https://www.geocaching.com/map/*
-// @match           http://www.geocaching.com/map/*
 // @match           https://www.geocaching.com/geocache/*
-// @match           http://www.geocaching.com/geocache/*
 // @match           https://www.geocaching.com/seek/cache_details.aspx*
 // @match           https://www.geocaching.com/plan/lists/BM*
-// @match           http://www.geocaching.com/play/geotours/*
 // @match           https://www.geocaching.com/play/geotours/*
 // @match           file:///*/gsak/html/*
 // @match           file:///*/html/*
-// @match           http://project-gc.com/*
 // @match           https://project-gc.com/*
-// @match           http*://cachetur.no/bobilplasser
+// @match           https://cachetur.no/bobilplasser
 // @connect         cachetur.no
 // @connect         cachetur.net
 // @connect         self
@@ -478,7 +473,7 @@ if (domain === "www.geocaching.com") {
         _ctPageHandler = new GC_BrowseMapPageHandler();
     } else if (pathname.indexOf("/play/map") > -1) {
         _ctPageHandler = new GC_SearchMapPageHandler();
-    } else if (pathname.indexOf("/play/geotours/") > -1) {
+    } else if (pathname.indexOf("/play/geotours") > -1) {
         _ctPageHandler = new GC_GeotourPageHandler();
     }
 } else if (href.indexOf("/html/") > -1) {
