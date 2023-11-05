@@ -976,6 +976,7 @@ async function windowLoaded() {
         ctInitPGCLiveMapListener();
         ctInitgsakMapListener();
         _initialized = true;
+        console.log("Initialization completed");
     }
 
     async function ctInitNotLoggedIn() {
@@ -1216,10 +1217,11 @@ async function windowLoaded() {
 
     async function ctCreateTripList() {
         if (_ctCacheturUser === "") return;
+        console.log("Inside ctCreateTripList, starting");
         const available = await ctApiCall("planlagt_list_editable", {
             includetemplates: "true",
         });
-
+        console.log("Inside ctCreateTripList, data retrieved");
         let options = "";
 
         if (available.length > 0) {
@@ -1388,6 +1390,7 @@ async function windowLoaded() {
                 $("#clear-map-control").trigger("click");
             }
         });
+        console.log("Inside ctCreateTripList, ending");
     }
 
     async function ctGetAddedCodes(id) {
@@ -1673,7 +1676,7 @@ async function windowLoaded() {
 
     async function ctInitAddLinks() {
         if (_ctCacheturUser === "") return;
-
+        console.log("Inside ctInitAddLinks, starting");
         //TODO: ctPage
         switch (_ctPage) {
             case "gc_geocache":
@@ -1744,6 +1747,7 @@ async function windowLoaded() {
                 ctAddSendPgcVgpsButton();
                 break;
         }
+        console.log("Inside ctInitAddLinks, ending");
     }
 
     function ctWatchgsakMap() {
