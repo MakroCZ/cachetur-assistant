@@ -2107,39 +2107,35 @@ async function windowLoaded() {
     }
 
     //fake update posted coordinates
-    function updatecoord() {
-        var existCondition = setInterval(function () {
-            if ($("#cachetur-tur-valg").length) {
-                clearInterval(existCondition);
-                if (_ctPage === "gc_geocache") {
-                    //TODO: ctPage
-                    $(".LocationData").append(
-                        '<span class="cachetur-header" span id="copy"> <button id="cp_btn" title="' +
-                            i18next.t("corrected.title") +
-                            '"><img src="https://raw.githubusercontent.com/cghove/bobil/main/l1515.png">' +
-                            i18next.t("corrected.button") +
-                            '<img src="https://raw.githubusercontent.com/cghove/bobil/main/1515.png"></button> </span>'
-                    );
-                    document
-                        .getElementById("cp_btn")
-                        .addEventListener("click", clipboard);
+    async function updatecoord() {
+        await waitForElement("#cachetur-tur-valg");
+        if (_ctPage === "gc_geocache") {
+            //TODO: ctPage
+            $(".LocationData").append(
+                '<span class="cachetur-header" span id="copy"> <button id="cp_btn" title="' +
+                    i18next.t("corrected.title") +
+                    '"><img src="https://raw.githubusercontent.com/cghove/bobil/main/l1515.png">' +
+                    i18next.t("corrected.button") +
+                    '<img src="https://raw.githubusercontent.com/cghove/bobil/main/1515.png"></button> </span>'
+            );
+            document
+                .getElementById("cp_btn")
+                .addEventListener("click", clipboard);
 
-                    async function clipboard() {
-                        event.preventDefault();
-                        var text = $("#uxLatLon").text();
-                        var $temp = $("<input>");
-                        $("body").append($temp);
-                        $temp.val(text).select();
-                        document.execCommand("copy");
-                        $temp.remove();
-                        $("#uxLatLon").trigger("click");
-                        await waitForElement("#newCoordinates"); // TODO: Maybe working?
-                        $("#newCoordinates").val(text);
-                        $(".btn-cc-parse").trigger("click");
-                    }
-                }
+            async function clipboard() {
+                event.preventDefault();
+                var text = $("#uxLatLon").text();
+                var $temp = $("<input>");
+                $("body").append($temp);
+                $temp.val(text).select();
+                document.execCommand("copy");
+                $temp.remove();
+                $("#uxLatLon").trigger("click");
+                await waitForElement("#newCoordinates"); // TODO: Maybe working?
+                $("#newCoordinates").val(text);
+                $(".btn-cc-parse").trigger("click");
             }
-        }, 100);
+        }
     }
 
     //end fake update posted coordinates
