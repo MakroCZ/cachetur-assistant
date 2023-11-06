@@ -838,9 +838,15 @@ async function windowLoaded() {
     async function ctCheckLogin() {
         console.log("Checking login");
         debugger;
-
-        const response = await ctApiCall("user_get_current", "");
-
+        let response;
+        try {
+            response = await ctApiCall("user_get_current", "");
+        } catch (e) {
+            console.log("Authorization failed: " + e);
+            console.log("Not logged in");
+            ctInitNotLoggedIn();
+            return;
+        }
         console.log("Checking login data recieved");
         debugger;
         _ctCacheturUser = response.username;
@@ -906,13 +912,9 @@ async function windowLoaded() {
             if (_ctCacheturUser === "GorgonVaktmester") gorgon();
         }
 
-        if (_ctCacheturUser === undefined || _ctCacheturUser === "") {
-            console.log("Not logged in");
-            ctInitNotLoggedIn();
-        } else {
+            
             console.log("Login OK");
             ctInit();
-        }
     }
 
     function ctInvalidateLogin() {
