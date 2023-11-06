@@ -41,7 +41,7 @@
 // ==/UserScript==
 /* globals jQuery, $, L, i18next, i18nextXHRBackend, i18nextBrowserLanguageDetector, cloneInto, gm_config */
 
-this.$ = this.jQuery = jQuery.noConflict(true);
+let $ = jQuery = jQuery.noConflict(true);
 let _ctLastCount = 0;
 let _ctCacheturUser = "";
 let _ctLanguage = "";
@@ -76,7 +76,7 @@ function waitForElement(selector) {
 }
 
 function HTMLStringToElement(string) {
-    var template = document.createElement("template");
+    const template = document.createElement("template");
     string = string.trim();
     template.innerHTML = string;
     return template.content.firstChild;
@@ -137,7 +137,6 @@ class GC_CachePageHandler extends PageHandler {
 
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
-        return;
     }
 
     ctInitNotLoggedIn() {
@@ -172,7 +171,6 @@ class GC_BrowseMapPageHandler extends PageHandler {
 
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
-        return;
     }
 
     ctInitNotLoggedIn() {
@@ -207,7 +205,6 @@ class GC_SearchMapPageHandler extends PageHandler {
 
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
-        return;
     }
 
     ctInitNotLoggedIn() {
@@ -241,7 +238,6 @@ class GC_BookmarkListPageHandler extends PageHandler {
 
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
-        return;
     }
 
     ctInitNotLoggedIn() {
@@ -275,7 +271,6 @@ class GC_GeotourPageHandler extends PageHandler {
 
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
-        return;
     }
 
     ctInitNotLoggedIn() {
@@ -309,7 +304,6 @@ class PGC_VirtualGPSPageHandler extends PageHandler {
 
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
-        return;
     }
 
     ctInitNotLoggedIn() {
@@ -339,7 +333,6 @@ class PGC_MapPageHandler extends PageHandler {
 
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
-        return;
     }
 
     ctInitNotLoggedIn() {
@@ -369,7 +362,6 @@ class GSAK_PageHandler extends PageHandler {
 
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
-        return;
     }
 
     ctInitNotLoggedIn() {
@@ -403,7 +395,6 @@ class CT_RVSitesPageHandler extends PageHandler {
 
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
-        return;
     }
 
     ctInitNotLoggedIn() {
@@ -437,7 +428,6 @@ class CT_TripPageHandler extends PageHandler {
 
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
-        return;
     }
 
     ctInitNotLoggedIn() {
