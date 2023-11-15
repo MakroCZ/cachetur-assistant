@@ -100,15 +100,84 @@ class PageHandler {
     }
 
     ctInitNotLoggedIn() {
-        throw Error("Not implemented");
+        console.log("Adding style NotLoggedIn");
+        GM_addStyle(
+            `#cachetur-header {
+                padding: 8px 1em 18px 2em;
+            }
+            
+            #cachetur-header-text {
+                padding-right: 3px;
+                float: left;
+                margin-top: -12px;
+            }
+            
+            #gc-header nav {
+                align-items: center;
+                box-sizing: border-box;
+                display: flex;
+                max-width: fit-content;
+                min-height: 80px;
+                overflow: visible;
+                padding: 0 12px;
+                position: relative !important;
+                width: 100vw;
+            }`
+        );
+        //throw Error("Not implemented");
     }
 
     ctInitInactive() {
-        throw Error("Not implemented");
+        console.log("Adding style Inactive");
+        GM_addStyle(
+            `#cachetur-header {
+                padding: 8px 1em 22px 2em;
+            }
+            
+            #cachetur-header-text {
+                padding-right: 3px;
+                float: left;
+            }
+            
+            #gc-header {
+                background-color: #02874d;
+                color: white;
+                font-size: 16px;
+                height: fit-content;
+                width: 100%;
+            }
+            
+            .player-profile {
+                width: fit-content;
+            }`
+        );
+        //throw Error("Not implemented");
     }
 
     ctCreateTripList() {
-        throw Error("Not implemented");
+        console.log("Adding style CreateTripList");
+        GM_addStyle(
+            `#cachetur-header {
+                padding: 8px 1em 22px 2em;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                white-space: nowrap;
+            }
+            
+            #cachetur-tur-valg {
+                float: left;
+                width: 200px;
+                height: 24px;
+                overflow: hidden;
+                background: #eee;
+                color: black;
+                border: 1px solid #ccc;
+                padding: 0px;
+                appearance: auto;
+            }`
+        );
+        //throw Error("Not implemented");
     }
 
     getHeaderElement() {
@@ -138,7 +207,7 @@ class GC_CachePageHandler extends PageHandler {
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
     }
-
+/*
     ctInitNotLoggedIn() {
         GM_addStyle(
             "nav .wrapper { max-width: unset; } #cachetur-header { padding: 8px 1em 18px 2em; } #gc-header nav {align-items: center; box-sizing: border-box; display: flex; max-width: fit-content; min-height: 80px; overflow: visible; padding: 0 12px; position: relative !important; width: 100vw;} #cachetur-tur-valg { float:left; width: 200px; height: 24px; overflow: hidden; background: #eee; color: black; border: 1px solid #ccc; } #cachetur-header-text { padding-right: 3px; float:left; margin-top: -12px;  } "
@@ -153,10 +222,10 @@ class GC_CachePageHandler extends PageHandler {
 
     ctCreateTripList() {
         GM_addStyle(
-            "#gc-header nav { max-width: none;} #gc-header button {border: 2px solid transparent; border-radius: 12px; font-family: Noto Sans, sans-serif; padding: 4px 8px; transition: border-color 0.2s;display: flex;justify-content: center;align-items: center;} #gc-header {background-color: #02874d; color: white; font-size: 16px; height: fit-content; width: 100%;} .player-profile {width: fit-content;} select {/* -webkit-appearance: none; */ -moz-appearance: none; /* appearance: none; */ background: #fffurl(../ui-icons/icons/global/caret-down.svg) no-repeat;/* background-position: 98% 50%; */   /* background-position: calc(100% - 12px) 50%; */   /* background-size: 16px 16px; */   /* border: 1px solid #9b9b9b; */   /* border-radius: 4px; */   /* box-sizing: border-box; */   /* color: #4a4a4a; */   /* cursor: pointer; */   /* display: block; */   /* padding: 8px 12px; */   /* padding-right: 40px; */   /* width: 100%; */} #cachetur-header { ;padding-top:8px; } #cachetur-tur-valg { padding: 0px;; appearance: auto; float:left; width: 200px; height: 24px; overflow: hidden; background: #eee; color: black; border: 1px solid #ccc; } .css-az98zw nav {    -webkit-box-align: center; align-items: center; box-sizing: border-box; display: flex; min-height: 80px; overflow: visible; padding: 0px 12px; width: 100vw; position: relative !important; max-width: 100%; padding: 0px 32px; font-size: 16px;} .cachetur-menu-button { border: 2px solid transparent; border-radius: 12px; font-family: Noto Sans, sans-serif; padding: 4px 8px; transition: border-color 0.2s; display: flex; justify-content: center; align-items: center; background-color: #eee; padding-right: 4px; padding-left: 4px; border: 1px solid rgba(0,0,0,0.1); height: 24px; width: 24px; float:left;} #cachetur-header-text { padding-right: 3px; float:left; } #cachetur-tur-antall-container { float: right; margin-top: 2px; padding-left: 3px;.cachetur-add-code { background-image: url(https://cachetur.no/api/img/cachetur-15.png); } .cachetur-add-code-success { background-image: url(https://cachetur.no/api/img/cachetur-15-success.png); } .cachetur-add-code-error { background-image: url(https://cachetur.no/api/img/cachetur-15-error.png); } .cachetur-set-pri-1 { background-image: url(https://cachetur.no/api/img/p1.png); } .cachetur-set-pri-1-success { background-image: url(https://cachetur.no/api/img/p1_success.png); } .cachetur-set-pri-1-error { background-image: url(https://cachetur.no/api/img/p1_error.png); } .cachetur-set-pri-2 { background-image: url(https://cachetur.no/api/img/p2.png); } .cachetur-set-pri-2-success { background-image: url(https://cachetur.no/api/img/p2_success.png); } .cachetur-set-pri-2-error { background-image: url(https://cachetur.no/api/img/p2_error.png); } .cachetur-set-pri-3 { background-image: url(https://cachetur.no/api/img/p3.png); } .cachetur-set-pri-3-success { background-image: url(https://cachetur.no/api/img/p3_success.png); } .cachetur-set-pri-3-error { background-image: url(https://cachetur.no/api/img/p3_error.png); } .cachetur-add-comment { background-image: url(https://cachetur.no/api/img/cachetur-comment.png); } .cachetur-add-comment-success { background-image: url(https://cachetur.no/api/img/cachetur-comment-success.png); } .cachetur-add-comment-error { background-image: url(https://cachetur.no/api/img/cachetur-comment-error.png); }"
+            "#gc-header nav { max-width: none;} #gc-header button {border: 2px solid transparent; border-radius: 12px; font-family: Noto Sans, sans-serif; padding: 4px 8px; transition: border-color 0.2s;display: flex;justify-content: center;align-items: center;} #gc-header {background-color: #02874d; color: white; font-size: 16px; height: fit-content; width: 100%;} .player-profile {width: fit-content;} select {-moz-appearance: none; background: #fffurl(../ui-icons/icons/global/caret-down.svg) no-repeat;} #cachetur-header { ;padding-top:8px; } #cachetur-tur-valg { padding: 0px;; appearance: auto; float:left; width: 200px; height: 24px; overflow: hidden; background: #eee; color: black; border: 1px solid #ccc; } .css-az98zw nav {    -webkit-box-align: center; align-items: center; box-sizing: border-box; display: flex; min-height: 80px; overflow: visible; padding: 0px 12px; width: 100vw; position: relative !important; max-width: 100%; padding: 0px 32px; font-size: 16px;} .cachetur-menu-button { border: 2px solid transparent; border-radius: 12px; font-family: Noto Sans, sans-serif; padding: 4px 8px; transition: border-color 0.2s; display: flex; justify-content: center; align-items: center; background-color: #eee; padding-right: 4px; padding-left: 4px; border: 1px solid rgba(0,0,0,0.1); height: 24px; width: 24px; float:left;} #cachetur-header-text { padding-right: 3px; float:left; } #cachetur-tur-antall-container { float: right; margin-top: 2px; padding-left: 3px;.cachetur-add-code { background-image: url(https://cachetur.no/api/img/cachetur-15.png); } .cachetur-add-code-success { background-image: url(https://cachetur.no/api/img/cachetur-15-success.png); } .cachetur-add-code-error { background-image: url(https://cachetur.no/api/img/cachetur-15-error.png); } .cachetur-set-pri-1 { background-image: url(https://cachetur.no/api/img/p1.png); } .cachetur-set-pri-1-success { background-image: url(https://cachetur.no/api/img/p1_success.png); } .cachetur-set-pri-1-error { background-image: url(https://cachetur.no/api/img/p1_error.png); } .cachetur-set-pri-2 { background-image: url(https://cachetur.no/api/img/p2.png); } .cachetur-set-pri-2-success { background-image: url(https://cachetur.no/api/img/p2_success.png); } .cachetur-set-pri-2-error { background-image: url(https://cachetur.no/api/img/p2_error.png); } .cachetur-set-pri-3 { background-image: url(https://cachetur.no/api/img/p3.png); } .cachetur-set-pri-3-success { background-image: url(https://cachetur.no/api/img/p3_success.png); } .cachetur-set-pri-3-error { background-image: url(https://cachetur.no/api/img/p3_error.png); } .cachetur-add-comment { background-image: url(https://cachetur.no/api/img/cachetur-comment.png); } .cachetur-add-comment-success { background-image: url(https://cachetur.no/api/img/cachetur-comment-success.png); } .cachetur-add-comment-error { background-image: url(https://cachetur.no/api/img/cachetur-comment-error.png); }"
         );
     }
-
+*/
     getHeaderSelector() {
         return ".user-menu";
     }
@@ -172,7 +241,7 @@ class GC_BrowseMapPageHandler extends PageHandler {
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
     }
-
+/*
     ctInitNotLoggedIn() {
         GM_addStyle(
             "#cachetur-header button { width: 26px; } #cachetur-header { ;padding-top:8px; } #cachetur-header-text { padding-right: 3px; float:left; margin-top: -12px; }"
@@ -190,7 +259,7 @@ class GC_BrowseMapPageHandler extends PageHandler {
             "#gc-header button {border: 2px solid transparent; border-radius: 12px; font-family: Noto Sans, sans-serif; padding: 4px 8px; transition: border-color 0.2s;display: flex;justify-content: center;align-items: center;} #cachetur-header button { width: 26px; } #gc-header {background-color: #02874d; color: white; font-size: 16px; height: fit-content; width: 100%;} .player-profile {width: fit-content;} #cachetur-header { ;padding-top:8px; } #cachetur-tur-valg { float:left; width: 200px; height: 24px; overflow: hidden; background: #eee; color: black; border: 1px solid #ccc; } .cachetur-menu-button { border: 2px solid transparent; border-radius: 12px; font-family: Noto Sans, sans-serif; padding: 4px 8px; transition: border-color 0.2s; display: flex; justify-content: center; align-items: center; background-color: #eee; padding-right: 4px; padding-left: 4px; border: 1px solid rgba(0,0,0,0.1); height: 24px; width: 24px; float:left;} #cachetur-header-text { padding-right: 3px; float:left; } #cachetur-tur-antall-container { float: right; margin-top: 2px; padding-left: 3px; }"
         );
     }
-
+*/
     getHeaderSelector() {
         return ".user-menu";
     }
@@ -206,7 +275,7 @@ class GC_SearchMapPageHandler extends PageHandler {
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
     }
-
+/*
     ctInitNotLoggedIn() {
         GM_addStyle(
             "#cachetur-header button { width: 26px; } #cachetur-header { ;padding-top:8px; } #cachetur-header-text { padding-right: 3px; float:left; margin-top: -12px; }"
@@ -224,7 +293,7 @@ class GC_SearchMapPageHandler extends PageHandler {
             "#gc-header button {border: 2px solid transparent; border-radius: 12px; font-family: Noto Sans, sans-serif; padding: 4px 8px; transition: border-color 0.2s;display: flex;justify-content: center;align-items: center;} #gc-header {background-color: #02874d; color: white; font-size: 16px; height: fit-content; width: 100%;} .player-profile {width: fit-content;} #cachetur-header { ;padding-top:8px; } #cachetur-tur-valg { float:left; width: 200px; height: 24px; overflow: hidden; background: #eee; color: black; border: 1px solid #ccc; } .cachetur-menu-button { border: 2px solid transparent; border-radius: 12px; font-family: Noto Sans, sans-serif; padding: 4px 8px; transition: border-color 0.2s; display: flex; justify-content: center; align-items: center; background-color: #eee; padding-right: 4px; padding-left: 4px; border: 1px solid rgba(0,0,0,0.1); height: 24px; width: 24px; float:left;} #cachetur-header-text { padding-right: 3px; float:left; } #cachetur-tur-antall-container { float: right; margin-top: 2px; padding-left: 3px;.cachetur-add-code { background-image: url(https://cachetur.no/api/img/cachetur-15.png); } .cachetur-add-code-success { background-image: url(https://cachetur.no/api/img/cachetur-15-success.png); } .cachetur-add-code-error { background-image: url(https://cachetur.no/api/img/cachetur-15-error.png); } .cachetur-set-pri-1 { background-image: url(https://cachetur.no/api/img/p1.png); } .cachetur-set-pri-1-success { background-image: url(https://cachetur.no/api/img/p1_success.png); } .cachetur-set-pri-1-error { background-image: url(https://cachetur.no/api/img/p1_error.png); } .cachetur-set-pri-2 { background-image: url(https://cachetur.no/api/img/p2.png); } .cachetur-set-pri-2-success { background-image: url(https://cachetur.no/api/img/p2_success.png); } .cachetur-set-pri-2-error { background-image: url(https://cachetur.no/api/img/p2_error.png); } .cachetur-set-pri-3 { background-image: url(https://cachetur.no/api/img/p3.png); } .cachetur-set-pri-3-success { background-image: url(https://cachetur.no/api/img/p3_success.png); } .cachetur-set-pri-3-error { background-image: url(https://cachetur.no/api/img/p3_error.png); } .cachetur-add-comment { background-image: url(https://cachetur.no/api/img/cachetur-comment.png); } .cachetur-add-comment-success { background-image: url(https://cachetur.no/api/img/cachetur-comment-success.png); } .cachetur-add-comment-error { background-image: url(https://cachetur.no/api/img/cachetur-comment-error.png); }"
         );
     }
-
+*/
     getHeaderSelector() {
         return ".user-menu";
     }
@@ -239,7 +308,7 @@ class GC_BookmarkListPageHandler extends PageHandler {
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
     }
-
+/*
     ctInitNotLoggedIn() {
         GM_addStyle(
             "nav .wrapper { max-width: unset; } #cachetur-header { padding: 8px 1em 18px 2em; } #gc-header nav {align-items: center; box-sizing: border-box; display: flex; max-width: fit-content; min-height: 80px; overflow: visible; padding: 0 12px; position: relative !important; width: 100vw;} #cachetur-tur-valg { float:left; width: 200px; height: 24px; overflow: hidden; background: #eee; color: black; border: 1px solid #ccc; } #cachetur-header-text { padding-right: 3px; float:left; margin-top: -12px;  } "
@@ -257,7 +326,7 @@ class GC_BookmarkListPageHandler extends PageHandler {
             "#gc-header button {border: 2px solid transparent; border-radius: 12px; font-family: Noto Sans, sans-serif; padding: 4px 8px; transition: border-color 0.2s;display: flex;justify-content: center;align-items: center;} .gc-nav-menu .wrapper { max-width: unset; } #gc-header {background-color: #02874d; color: white; font-size: 16px; height: fit-content; width: 100%;} .player-profile {width: fit-content;} #gc-header nav {align-items: center; box-sizing: border-box; display: flex; max-width: fit-content; min-height: 80px; overflow: visible; padding: 0 12px; position: relative !important; width: 100vw; height: fit-content;} #cachetur-header { padding: 8px 1em 22px 2em; } #cachetur-tur-valg { float:left; width: 200px; height: 24px; overflow: hidden; background: #eee; color: black; border: 1px solid #ccc; } #cachetur-tur-fitbounds { display: none; } #cachetur-tur-add-ct-caches { display: none; } .cachetur-menu-button { border: 2px solid transparent; border-radius: 12px; font-family: Noto Sans, sans-serif; padding: 4px 8px; transition: border-color 0.2s; display: flex; justify-content: center; align-items: center; background-color: #eee; padding-right: 4px; padding-left: 4px; border: 1px solid rgba(0,0,0,0.1); height: 24px; width: 24px; float:left;} #cachetur-header-text { padding-right: 3px; float:left; } #cachetur-tur-antall-container { padding-left: 4px; } .cachetur-add-code { background-image: url(https://cachetur.no/api/img/cachetur-15.png); } .cachetur-add-code-success { background-image: url(https://cachetur.no/api/img/cachetur-15-success.png); } .cachetur-add-code-error { background-image: url(https://cachetur.no/api/img/cachetur-15-error.png); } .cachetur-set-pri-1 { background-image: url(https://cachetur.no/api/img/p1.png); } .cachetur-set-pri-1-success { background-image: url(https://cachetur.no/api/img/p1_success.png); } .cachetur-set-pri-1-error { background-image: url(https://cachetur.no/api/img/p1_error.png); } .cachetur-set-pri-2 { background-image: url(https://cachetur.no/api/img/p2.png); } .cachetur-set-pri-2-success { background-image: url(https://cachetur.no/api/img/p2_success.png); } .cachetur-set-pri-2-error { background-image: url(https://cachetur.no/api/img/p2_error.png); } .cachetur-set-pri-3 { background-image: url(https://cachetur.no/api/img/p3.png); } .cachetur-set-pri-3-success { background-image: url(https://cachetur.no/api/img/p3_success.png); } .cachetur-set-pri-3-error { background-image: url(https://cachetur.no/api/img/p3_error.png); } .cachetur-add-comment { background-image: url(https://cachetur.no/api/img/cachetur-comment.png); } .cachetur-add-comment-success { background-image: url(https://cachetur.no/api/img/cachetur-comment-success.png); } .cachetur-add-comment-error { background-image: url(https://cachetur.no/api/img/cachetur-comment-error.png); }"
         );
     }
-
+*/
     getHeaderSelector() {
         return ".user-menu";
     }
@@ -272,7 +341,7 @@ class GC_GeotourPageHandler extends PageHandler {
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
     }
-
+/*
     ctInitNotLoggedIn() {
         GM_addStyle(
             "#cachetur-header { padding-top:8px; }#gc-header nav {align-items: center; box-sizing: border-box; display: flex; max-width: fit-content; min-height: 80px; overflow: visible; padding: 0 12px; position: relative !important; width: 100vw;}  #cachetur-header-text { padding-right: 3px; float:left; }"
@@ -290,7 +359,7 @@ class GC_GeotourPageHandler extends PageHandler {
             "#gc-header button {border: 2px solid transparent; border-radius: 12px; font-family: Noto Sans, sans-serif; padding: 4px 8px; transition: border-color 0.2s;display: flex;justify-content: center;align-items: center;} #gc-header {background-color: #02874d; color: white; font-size: 16px; height: fit-content; width: 100%;} .player-profile {width: fit-content;} #gc-header nav {align-items: center; height: fit-content; box-sizing: border-box; display: flex; max-width: fit-content; min-height: 80px; overflow: visible; padding: 0 12px; position: relative !important; width: 100vw;} #cachetur-tur-valg { float:left; width: 200px; height: 24px; overflow: hidden; background: #eee; color: black; border: 1px solid #ccc; font: 13.3333px Arial; padding:1px; } .cachetur-menu-button { background-color: #eee; padding-right: 4px; padding-left: 4px; border: 1px solid rgba(0,0,0,0.1); height: 24px; width: 24px; float:left;} #cachetur-header-text { padding-right: 3px; float:left; } #cachetur-tur-antall-container { float: right; margin-top: 2px; padding-left: 3px; }"
         );
     }
-
+*/
     getHeaderSelector() {
         return ".user-menu";
     }
@@ -305,7 +374,7 @@ class PGC_VirtualGPSPageHandler extends PageHandler {
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
     }
-
+/*
     ctInitNotLoggedIn() {
         GM_addStyle("#cachetur-header { margin-top: 7px; }");
     }
@@ -319,7 +388,7 @@ class PGC_VirtualGPSPageHandler extends PageHandler {
             "#cachetur-header { margin-top: 7px; } #cachetur-tur-valg { width: 200px; height: 24px; overflow: hidden; background: #eee; color: black; border: 1px solid #ccc; }"
         );
     }
-
+*/
     getHeaderSelector() {
         return "#pgcMainMenu ul.navbar-right";
     }
@@ -334,7 +403,7 @@ class PGC_MapPageHandler extends PageHandler {
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
     }
-
+/*
     ctInitNotLoggedIn() {
         GM_addStyle("#cachetur-header { margin-top: 7px; }");
     }
@@ -348,7 +417,7 @@ class PGC_MapPageHandler extends PageHandler {
             "#cachetur-header { margin-top: 7px; } #cachetur-tur-valg { width: 200px; height: 24px; overflow: hidden; background: #eee; color: black; border: 1px solid #ccc; }"
         );
     }
-
+*/
     getHeaderSelector() {
         return "#pgcMainMenu ul.navbar-right";
     }
@@ -363,7 +432,7 @@ class GSAK_PageHandler extends PageHandler {
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
     }
-
+/*
     ctInitNotLoggedIn() {
         GM_addStyle(
             "nav .wrapper { max-width: unset; } #cachetur-header { padding: 8px 1em 18px 2em; } #gc-header nav {align-items: center; box-sizing: border-box; display: flex; max-width: fit-content; min-height: 80px; overflow: visible; padding: 0 12px; position: relative !important; width: 100vw;} #cachetur-tur-valg { float:left; width: 200px; height: 24px; overflow: hidden; background: #eee; color: black; border: 1px solid #ccc; } #cachetur-header-text { padding-right: 3px; float:left; margin-top: -12px;  } "
@@ -381,7 +450,7 @@ class GSAK_PageHandler extends PageHandler {
             "#gc-header button {border: 2px solid transparent; border-radius: 12px; font-family: Noto Sans, sans-serif; padding: 4px 8px; transition: border-color 0.2s;display: flex;justify-content: center;align-items: center;} #gc-header {background-color: #02874d; color: white; font-size: 16px; height: fit-content; width: 100%;} .player-profile {width: fit-content;} #cachetur-header { ;padding-top:8px; } #cachetur-tur-valg { float:left; width: 200px; height: 24px; overflow: hidden; background: #eee; color: black; border: 1px solid #ccc; } .cachetur-menu-button { border: 2px solid transparent; border-radius: 12px; font-family: Noto Sans, sans-serif; padding: 4px 8px; transition: border-color 0.2s; display: flex; justify-content: center; align-items: center; background-color: #eee; padding-right: 4px; padding-left: 4px; border: 1px solid rgba(0,0,0,0.1); height: 24px; width: 24px; float:left;}  #cachetur-header-text { padding-right: 3px; float:left; display: none;} #cachetur-tur-antall-container { float: right; margin-top: 2px; padding-left: 3px;.cachetur-add-code { background-image: url(https://cachetur.no/api/img/cachetur-15.png); } .cachetur-add-code-success { background-image: url(https://cachetur.no/api/img/cachetur-15-success.png); } .cachetur-add-code-error { background-image: url(https://cachetur.no/api/img/cachetur-15-error.png); } .cachetur-set-pri-1 { background-image: url(https://cachetur.no/api/img/p1.png); } .cachetur-set-pri-1-success { background-image: url(https://cachetur.no/api/img/p1_success.png); } .cachetur-set-pri-1-error { background-image: url(https://cachetur.no/api/img/p1_error.png); } .cachetur-set-pri-2 { background-image: url(https://cachetur.no/api/img/p2.png); } .cachetur-set-pri-2-success { background-image: url(https://cachetur.no/api/img/p2_success.png); } .cachetur-set-pri-2-error { background-image: url(https://cachetur.no/api/img/p2_error.png); } .cachetur-set-pri-3 { background-image: url(https://cachetur.no/api/img/p3.png); } .cachetur-set-pri-3-success { background-image: url(https://cachetur.no/api/img/p3_success.png); } .cachetur-set-pri-3-error { background-image: url(https://cachetur.no/api/img/p3_error.png); } .cachetur-add-comment { background-image: url(https://cachetur.no/api/img/cachetur-comment.png); } .cachetur-add-comment-success { background-image: url(https://cachetur.no/api/img/cachetur-comment-success.png); } .cachetur-add-comment-error { background-image: url(https://cachetur.no/api/img/cachetur-comment-error.png); }"
         );
     }
-
+*/
     getHeaderSelector() {
         return ".leaflet-control-scale";
     }
@@ -396,7 +465,7 @@ class CT_RVSitesPageHandler extends PageHandler {
     async waitForNeededElements() {
         await waitForElement(this.getHeaderSelector());
     }
-
+/*
     ctInitNotLoggedIn() {
         GM_addStyle(
             "nav .wrapper { max-width: unset; } #cachetur-header { padding: 8px 1em 18px 2em; } #gc-header nav {align-items: center; box-sizing: border-box; display: flex; max-width: fit-content; min-height: 80px; overflow: visible; padding: 0 12px; position: relative !important; width: 100vw;} #cachetur-tur-valg { float:left; width: 200px; height: 24px; overflow: hidden; background: #eee; color: black; border: 1px solid #ccc; } #cachetur-header-text { padding-right: 3px; float:left; margin-top: -12px;  } "
@@ -414,7 +483,7 @@ class CT_RVSitesPageHandler extends PageHandler {
             "#gc-header button {border: 2px solid transparent; border-radius: 12px; font-family: Noto Sans, sans-serif; padding: 4px 8px; transition: border-color 0.2s;display: flex;justify-content: center;align-items: center;} #gc-header {background-color: #02874d; color: white; font-size: 16px; height: fit-content; width: 100%;} .player-profile {width: fit-content;} #cachetur-header { ;padding-top:8px; } #cachetur-tur-valg { float:left; width: 200px; height: 24px; overflow: hidden; background: #eee; color: black; border: 1px solid #ccc; } .cachetur-menu-button { border: 2px solid transparent; border-radius: 12px; font-family: Noto Sans, sans-serif; padding: 4px 8px; transition: border-color 0.2s; display: flex; justify-content: center; align-items: center; background-color: #eee; padding-right: 4px; padding-left: 4px; border: 1px solid rgba(0,0,0,0.1); height: 24px; width: 24px; float:left;}  #cachetur-header-text { padding-right: 3px; float:left; display: none;} #cachetur-tur-antall-container { float: right; margin-top: 2px; padding-left: 3px;.cachetur-add-code { background-image: url(https://cachetur.no/api/img/cachetur-15.png); } .cachetur-add-code-success { background-image: url(https://cachetur.no/api/img/cachetur-15-success.png); } .cachetur-add-code-error { background-image: url(https://cachetur.no/api/img/cachetur-15-error.png); } .cachetur-set-pri-1 { background-image: url(https://cachetur.no/api/img/p1.png); } .cachetur-set-pri-1-success { background-image: url(https://cachetur.no/api/img/p1_success.png); } .cachetur-set-pri-1-error { background-image: url(https://cachetur.no/api/img/p1_error.png); } .cachetur-set-pri-2 { background-image: url(https://cachetur.no/api/img/p2.png); } .cachetur-set-pri-2-success { background-image: url(https://cachetur.no/api/img/p2_success.png); } .cachetur-set-pri-2-error { background-image: url(https://cachetur.no/api/img/p2_error.png); } .cachetur-set-pri-3 { background-image: url(https://cachetur.no/api/img/p3.png); } .cachetur-set-pri-3-success { background-image: url(https://cachetur.no/api/img/p3_success.png); } .cachetur-set-pri-3-error { background-image: url(https://cachetur.no/api/img/p3_error.png); } .cachetur-add-comment { background-image: url(https://cachetur.no/api/img/cachetur-comment.png); } .cachetur-add-comment-success { background-image: url(https://cachetur.no/api/img/cachetur-comment-success.png); } .cachetur-add-comment-error { background-image: url(https://cachetur.no/api/img/cachetur-comment-error.png); }"
         );
     }
-
+*/
     getHeaderSelector() {
         return ".navbar-right";
     }
@@ -1243,13 +1312,13 @@ async function windowLoaded() {
 
         if ($("#GClh_II_running")[0] && $("gclh_nav#ctl00_gcNavigation")[0]) {
             ctPrependToHeader2(
-                '<li id="cachetur-header"><span id="cachetur-header-text"><img src="https://cachetur.net/img/logo_top.png" title="' +
+                '<li id="cachetur-header"><img src="https://cachetur.net/img/logo_top.png" title="' +
                     i18next.t("menu.loggedinas") +
                     " " +
                     _ctCacheturUser +
                     '" /> ' +
                     i18next.t("menu.addto") +
-                    ' </span><select id="cachetur-tur-valg">' +
+                    ' <select id="cachetur-tur-valg">' +
                     options +
                     '</select><button id="cachetur-tur-open" class="cachetur-menu-button" type="button" title="' +
                     i18next.t("menu.opentrip") +
@@ -1263,13 +1332,13 @@ async function windowLoaded() {
             );
         } else {
             ctPrependToHeader(
-                '<li id="cachetur-header"><span id="cachetur-header-text"><img src="https://cachetur.net/img/logo_top.png" title="' +
+                '<li id="cachetur-header"><img src="https://cachetur.net/img/logo_top.png" title="' +
                     i18next.t("menu.loggedinas") +
                     " " +
                     _ctCacheturUser +
                     '" /> ' +
                     i18next.t("menu.addto") +
-                    ' </span><select id="cachetur-tur-valg">' +
+                    ' <select id="cachetur-tur-valg">' +
                     options +
                     '</select><button id="cachetur-tur-open" class="cachetur-menu-button" type="button" title="' +
                     i18next.t("menu.opentrip") +
