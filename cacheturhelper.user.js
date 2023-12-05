@@ -812,10 +812,10 @@ function ctPreInit() {
                 ctCheckLogin();
             }
         });
-    } else if (typeof _ctPageHandler === GC_SearchMapPageHandler) {
+    } else if (_ctPageHandler instanceof GC_SearchMapPageHandler) {
         ctCheckLogin();
     } else if (
-        typeof _ctPageHandler === GC_GeotourPageHandler &&
+        _ctPageHandler instanceof GC_GeotourPageHandler &&
         $(".user-menu,.profile-panel.detailed").length < 1
     ) {
         $(document).bind("DOMSubtreeModified.cachetur-init", function () {
