@@ -543,9 +543,9 @@ if (domain === "www.geocaching.com") {
     }
 } else if (href.indexOf("/html/") > -1) {
     _ctPageHandler = new GSAK_PageHandler();
-} else if (pathname.match(/^\/bobilplasser\/*/) !== null) {
+} else if (pathname.startsWith("/bobilplasser/")) {
     _ctPageHandler = new CT_RVSitesPageHandler();
-} else if (pathname.match(/^\/fellestur\/*/) !== null) {
+} else if (pathname.startsWith("/fellestur/")) {
     _ctPageHandler = new CT_TripPageHandler(); // Useless?
 } else if (
     domain === "project-gc.com" &&
