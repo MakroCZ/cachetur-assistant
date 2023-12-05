@@ -1379,7 +1379,7 @@ async function ctCreateTripList() {
             unsafeLeafletObject.fitBounds(
                 unsafeWindow.cacheturRouteLayer.getBounds()
             );
-        if (typeof _ctPageHandler === GC_SearchMapPageHandler) {
+        if (_ctPageHandler instanceof GC_SearchMapPageHandler) {
             $("#clear-map-control").trigger("click");
         }
     });
