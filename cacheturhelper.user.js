@@ -84,6 +84,11 @@ function HTMLStringToElement(string) {
 
 let _ctPageHandler = null;
 
+// TODO: Move to external file downloaded when starting, as random gorgon
+const ambassadorNames = ["Heltinnen", "DougyB", "cghove", "Korsgat", "Don Rodolphos", "platoaddict",
+                         "rragan", "twlare", "GorgonVaktmester", "Olet", "footie77", "HikingSeal", 
+                         "Vatvedt", "kawlii", "Kittykatch", "anirt", "QuoX", "flower6871", "juliekatrine"];
+
 /**
  * "Abstract" base class for individual page handlers (GC cache detail, GC old map, GC new map, PGC, ...)
  */
@@ -912,27 +917,7 @@ async function windowLoaded() {
         _ctLanguage = response.language;
         i18next.changeLanguage(_ctLanguage);
         if ($("#GClh_II_running")[0] && $("gclh_nav#ctl00_gcNavigation")[0]) {
-            if (
-                _ctCacheturUser === "Heltinnen" ||
-                _ctCacheturUser === "DougyB" ||
-                _ctCacheturUser === "cghove" ||
-                _ctCacheturUser === "Korsgat" ||
-                _ctCacheturUser === "Don Rodolphos" ||
-                _ctCacheturUser === "platoaddict" ||
-                _ctCacheturUser === "rragan" ||
-                _ctCacheturUser === "twlare" ||
-                _ctCacheturUser === "GorgonVaktmester" ||
-                _ctCacheturUser === "Olet" ||
-                _ctCacheturUser === "footie77" ||
-                _ctCacheturUser === "HikingSeal" ||
-                _ctCacheturUser === "Vatvedt" ||
-                _ctCacheturUser === "kawlii" ||
-                _ctCacheturUser === "Kittykatch" ||
-                _ctCacheturUser === "anirt" ||
-                _ctCacheturUser === "QuoX" ||
-                _ctCacheturUser === "flower6871" ||
-                _ctCacheturUser === "juliekatrine"
-            )
+            if (ambassadorNames.includes(_ctCacheturUser))
                 ctPrependTousergclh(
                     '<li id="cachetur-header1"><span id="cachetur-header-text">' +
                         "Ambassador" +
@@ -941,27 +926,7 @@ async function windowLoaded() {
             if (_ctCacheturUser === "thomfre") thomfre1();
             if (_ctCacheturUser === "GorgonVaktmester") gorgon();
         } else {
-            if (
-                _ctCacheturUser === "Heltinnen" ||
-                _ctCacheturUser === "DougyB" ||
-                _ctCacheturUser === "cghove" ||
-                _ctCacheturUser === "Korsgat" ||
-                _ctCacheturUser === "Don Rodolphos" ||
-                _ctCacheturUser === "platoaddict" ||
-                _ctCacheturUser === "rragan" ||
-                _ctCacheturUser === "twlare" ||
-                _ctCacheturUser === "GorgonVaktmester" ||
-                _ctCacheturUser === "Olet" ||
-                _ctCacheturUser === "footie77" ||
-                _ctCacheturUser === "HikingSeal" ||
-                _ctCacheturUser === "Vatvedt" ||
-                _ctCacheturUser === "kawlii" ||
-                _ctCacheturUser === "Kittykatch" ||
-                _ctCacheturUser === "anirt" ||
-                _ctCacheturUser === "QuoX" ||
-                _ctCacheturUser === "flower6871" ||
-                _ctCacheturUser === "juliekatrine"
-            )
+            if (ambassadorNames.includes(_ctCacheturUser))
                 ctPrependTouser(
                     '<li id="cachetur-header1"><span id="cachetur-header-text"><img src="https://cachetur.net/img/logo_top.png" alt="cachetur.no" /></li><li id="cachetur-header1"><span id="cachetur-header-text">' +
                         "Ambassador" +
