@@ -581,6 +581,44 @@ function gorgon() {
     );
 }
 
+function thomfre1() {
+    $.get(
+        "https://raw.githubusercontent.com/cghove/bobil/main/b.txt",
+        function (data) {
+            var cardRules = data.split("\n");
+            var randomthomfre = Math.floor(
+                Math.random() * cardRules.length
+            );
+            var randomNamethomfre = cardRules[randomthomfre];
+            ctPrependTousergclh(
+                '<li id="cachetur-header"><span id="cachetur-header-text">' +
+                    randomNamethomfre +
+                    "</li>"
+            );
+        }
+    );
+}
+function thomfre() {
+    $.get(
+        "https://raw.githubusercontent.com/cghove/bobil/main/b.txt",
+        function (data) {
+            var cardRules = data.split("\n");
+            var randomthomfre = Math.floor(
+                Math.random() * cardRules.length
+            );
+            var randomNamethomfre = cardRules[randomthomfre];
+
+            ctPrependTousergorgon2(
+                '<li id="cachetur-header2" style="padding-left: 75px;padding-right: 45px;">' +
+                    randomNamethomfre +
+                    "</li>"
+            );
+        }
+    );
+}
+
+
+
 async function loadTranslations() {
     debugger;
     await i18next
@@ -830,41 +868,6 @@ function ctPreInit() {
 }
 
 
-function thomfre1() {
-    $.get(
-        "https://raw.githubusercontent.com/cghove/bobil/main/b.txt",
-        function (data) {
-            var cardRules = data.split("\n");
-            var randomthomfre = Math.floor(
-                Math.random() * cardRules.length
-            );
-            var randomNamethomfre = cardRules[randomthomfre];
-            ctPrependTousergclh(
-                '<li id="cachetur-header"><span id="cachetur-header-text">' +
-                    randomNamethomfre +
-                    "</li>"
-            );
-        }
-    );
-}
-function thomfre() {
-    $.get(
-        "https://raw.githubusercontent.com/cghove/bobil/main/b.txt",
-        function (data) {
-            var cardRules = data.split("\n");
-            var randomthomfre = Math.floor(
-                Math.random() * cardRules.length
-            );
-            var randomNamethomfre = cardRules[randomthomfre];
-
-            ctPrependTousergorgon2(
-                '<li id="cachetur-header2" style="padding-left: 75px;padding-right: 45px;">' +
-                    randomNamethomfre +
-                    "</li>"
-            );
-        }
-    );
-}
 
 async function ctCheckLogin() {
     console.log("Checking login");
