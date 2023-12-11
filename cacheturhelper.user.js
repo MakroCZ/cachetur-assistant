@@ -699,7 +699,10 @@ async function loadTranslations() {
 
 //Fill Menu
 function ctStartmenu() {
-    //debugger;
+    let uc1;
+    let uc2;
+    let uc3;
+    
     if ("undefined" != typeof GM_config) {
         GM_config.init({
             id: "MyConfig",
@@ -759,9 +762,9 @@ function ctStartmenu() {
             "C"
         );
 
-        var uc1 = GM_config.get("uc1");
-        var uc2 = GM_config.get("uc2");
-        var uc3 = GM_config.get("uc3");
+        uc1 = GM_config.get("uc1");
+        uc2 = GM_config.get("uc2");
+        uc3 = GM_config.get("uc3");
     } else {
         console.log(
             "Could not load GM_config! external resource may be temporarily down?\nUsing default settings for now.",
@@ -781,11 +784,9 @@ function ctStartmenu() {
 
     if (uc1 === true) {
         updatecoord();
-    } else {
     }
     if (uc2 === true) {
         open_new_page();
-    } else {
     }
     if (uc3 === true) {
         var existCondition = setInterval(function () {
@@ -794,7 +795,6 @@ function ctStartmenu() {
                 tvinfo();
             }
         }, 100);
-    } else {
     }
 }
 
