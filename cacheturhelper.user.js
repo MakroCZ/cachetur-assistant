@@ -1677,7 +1677,6 @@ async function ctInitAddLinks() {
                     "#ctl00_ContentBody_CoordInfoLinkControl1_uxCoordInfoCode"
                 )
             );
-            tvinfostart();
             break;
         case "gc_bmlist":
             ctAddSendListButton();
@@ -1695,7 +1694,6 @@ async function ctInitAddLinks() {
                         i18next.t("alerts.google") +
                         "</large>"
                 );
-                tvinfostart();
                 return;
             }
             break;
@@ -1712,7 +1710,6 @@ async function ctInitAddLinks() {
                         i18next.t("alerts.google") +
                         "</large>"
                 );
-                tvinfostart();
                 break;
             }
             if (!document.querySelector("primary log-geocache"))
@@ -1982,7 +1979,6 @@ function ctAddToCoordInfoLink(code) {
                     img +
                     "</div>"
             );
-            tvinfostart();
         } else if (_ctPage === "gc_map_new") {
             //TODO: ctPage
             console.log("injecting cachetur menus to geocache " + gcCode);
@@ -1995,7 +1991,6 @@ function ctAddToCoordInfoLink(code) {
                     "</a></li></ul>"
             );
             ctGetPublicLists_gc_map_new(gcCode);
-            tvinfostart();
         } else {
             code.prepend(img);
         }
@@ -3230,21 +3225,6 @@ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR B
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
-
-function tvinfostart() {
-    //TODO: Get rid of this duplicated name, it is not Called
-    function waitForElementOld() {
-        if (typeof someVariable !== "uc3") {
-            //TODO: What is someVariable?
-            if (uc3 === true) {
-                tvinfo();
-            } else {
-            }
-        } else {
-        }
-        setTimeout(waitForElementOld, 250);
-    }
-}
 
 async function tvinfo() {
     if (_ctPage === "gc_geocache") {
