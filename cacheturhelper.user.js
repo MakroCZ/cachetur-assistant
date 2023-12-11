@@ -558,7 +558,7 @@ if (domain === "www.geocaching.com") {
 }
 
 
-
+// TODO: Solve these weird user name based abominations, at least get it to one generic function
 function gorgon() {
     $.get(
         "https://raw.githubusercontent.com/cghove/bobil/main/a.txt",
