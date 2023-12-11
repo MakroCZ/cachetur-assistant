@@ -698,7 +698,7 @@ async function loadTranslations() {
 
 
 //Fill Menu
-function ctStartmenu() {
+async function ctStartmenu() {
     let uc1;
     let uc2;
     let uc3;
@@ -789,12 +789,8 @@ function ctStartmenu() {
         open_new_page();
     }
     if (uc3 === true) {
-        var existCondition = setInterval(function () {
-            if ($("#cachetur-tur-valg").length) {
-                clearInterval(existCondition);
-                tvinfo();
-            }
-        }, 100);
+        await waitForElement("#cachetur-tur-valg");
+        tvinfo();
     }
 }
 
