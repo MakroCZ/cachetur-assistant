@@ -700,7 +700,6 @@ async function loadTranslations() {
 //Fill Menu
 async function ctStartmenu() {
     let uc1;
-    let uc2;
     let uc3;
     
     if ("undefined" != typeof GM_config) {
@@ -716,21 +715,6 @@ async function ctStartmenu() {
                     label:
                         "<b>" +
                         i18next.t("edit.toggle") +
-                        '</b><br><i class="small">' +
-                        i18next.t("edit.default") +
-                        " " +
-                        i18next.t("edit.off") +
-                        "</i> ",
-                    type: "checkbox",
-                    default: false,
-                },
-
-                uc2: {
-                    label:
-                        "<b>" +
-                        i18next.t("edit.open") +
-                        "</b><br>" +
-                        i18next.t("edit.warning") +
                         '</b><br><i class="small">' +
                         i18next.t("edit.default") +
                         " " +
@@ -763,7 +747,6 @@ async function ctStartmenu() {
         );
 
         uc1 = GM_config.get("uc1");
-        uc2 = GM_config.get("uc2");
         uc3 = GM_config.get("uc3");
     } else {
         console.log(
@@ -785,40 +768,12 @@ async function ctStartmenu() {
     if (uc1 === true) {
         updatecoord();
     }
-    if (uc2 === true) {
-        open_new_page();
-    }
     if (uc3 === true) {
         await waitForElement("#cachetur-tur-valg");
         tvinfo();
     }
 }
 
-// open new page
-function open_new_page() {
-    var existCondition = setInterval(function () {
-        if ($("#cachetur-tur-valg").length) {
-            clearInterval(existCondition);
-            var addresses = document.querySelectorAll(
-                "#ctl00_ContentBody_LongDescription a"
-            );
-
-            for (var i = 0; i < addresses.length; i++) {
-                addresses[i].addEventListener(
-                    "click",
-                    function () {
-                        event.stopImmediatePropagation();
-                    },
-                    true
-                );
-                addresses[i].setAttribute("target", "_blank");
-            }
-        }
-    }, 100);
-}
-
-
-// open new page end
 function ctStart() {
     debugger;
     let lastUse = GM_getValue("cachetur_last_action", 0);
