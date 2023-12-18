@@ -787,38 +787,9 @@ function ctStart() {
     if (timeSinceLastUse > 3600) {
         ctInitInactive();
     } else {
-        ctPreInit();
-    }
-}
-
-function ctPreInit() {
-    debugger;
-    console.log("Continuing init of Cacheturassistenten");
-    if (_ctPageHandler === null && $(".logged-in-user").length < 1) {
-        $(document).bind("DOMSubtreeModified.cachetur-init", function () {
-            if ($(".profile-panel.detailed").length > 0) {
-                $(document).unbind("DOMSubtreeModified.cachetur-init");
-                ctCheckLogin();
-            }
-        });
-    } else if (_ctPageHandler instanceof GC_SearchMapPageHandler) {
-        ctCheckLogin();
-    } else if (
-        _ctPageHandler instanceof GC_GeotourPageHandler &&
-        $(".user-menu,.profile-panel.detailed").length < 1
-    ) {
-        $(document).bind("DOMSubtreeModified.cachetur-init", function () {
-            if ($(".logged-in-user").length > 0) {
-                $(document).unbind("DOMSubtreeModified.cachetur-init");
-                ctCheckLogin();
-            }
-        });
-    } else {
         ctCheckLogin();
     }
 }
-
-
 
 async function ctCheckLogin() {
     console.log("Checking login");
