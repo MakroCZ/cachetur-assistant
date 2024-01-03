@@ -406,9 +406,9 @@ function gorgon() {
     $.get(
         "https://raw.githubusercontent.com/cghove/bobil/main/a.txt",
         function (data) {
-            var cardRules = data.split("\n");
-            var randomgorgon = Math.floor(Math.random() * cardRules.length);
-            var randomNamegorgon = cardRules[randomgorgon];
+            const cardRules = data.split("\n");
+            const randomgorgon = Math.floor(Math.random() * cardRules.length);
+            const randomNamegorgon = cardRules[randomgorgon];
             ctPrependTousergorgon(
                 '<li id="cachetur-header2" style="padding-left: 75px;padding-right: 45px;">' +
                     randomNamegorgon +
@@ -428,11 +428,11 @@ function thomfre1() {
     $.get(
         "https://raw.githubusercontent.com/cghove/bobil/main/b.txt",
         function (data) {
-            var cardRules = data.split("\n");
-            var randomthomfre = Math.floor(
+            const cardRules = data.split("\n");
+            const randomthomfre = Math.floor(
                 Math.random() * cardRules.length
             );
-            var randomNamethomfre = cardRules[randomthomfre];
+            const randomNamethomfre = cardRules[randomthomfre];
             ctPrependTousergclh(
                 '<li id="cachetur-header"><span class="cachetur-header-text">' +
                     randomNamethomfre +
@@ -445,11 +445,11 @@ function thomfre() {
     $.get(
         "https://raw.githubusercontent.com/cghove/bobil/main/b.txt",
         function (data) {
-            var cardRules = data.split("\n");
-            var randomthomfre = Math.floor(
+            const cardRules = data.split("\n");
+            const randomthomfre = Math.floor(
                 Math.random() * cardRules.length
             );
-            var randomNamethomfre = cardRules[randomthomfre];
+            const randomNamethomfre = cardRules[randomthomfre];
 
             ctPrependTousergorgon2(
                 '<li id="cachetur-header2" style="padding-left: 75px;padding-right: 45px;">' +
