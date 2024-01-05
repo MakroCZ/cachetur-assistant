@@ -679,9 +679,10 @@ async function ctCheckLogin() {
     ctInit();
 }
 
-function ctInvalidateLogin() {
+async function ctInvalidateLogin() {
     _ctCacheturUser = "";
-    $("#cachetur-header").remove();
+    const element = await waitForElement("#cachetur-header");
+    element.remove();
 }
 
 function ctApiCall(call, params) {
