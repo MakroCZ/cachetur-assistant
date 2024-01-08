@@ -789,10 +789,13 @@ async function ctInitInactive() {
     _initialized = true;
 }
 
-function ctgsakMapInit() {
-    $("#map").bind("DOMSubtreeModified", ctgsakMapBindToChanges);
+async function ctgsakMapInit() {
+    const map = await waitForElement("#map");
 
-    let storedTrip = GM_getValue("cachetur_selected_trip", 0);
+    const observer = new MutationObserver(ctgsakMapBindToChanges);
+    observer.observe(map, {childList: true, subtree: true});
+
+    const storedTrip = GM_getValue("cachetur_selected_trip", 0);
     ctGetAddedCodes(storedTrip);
     ctGetTripRoute(storedTrip);
 }
