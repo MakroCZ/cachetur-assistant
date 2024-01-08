@@ -814,11 +814,10 @@ async function ctPGCMapInit() {
 
 function ctPrependToHeader(data) {
     console.log("Injecting cachetur.no in menu");
-    $(".hamburger--squeeze").remove();
-    let header = _ctPageHandler.getHeaderElement();
+    const header = _ctPageHandler.getHeaderElement();
 
     if (header) {
-        var element = HTMLStringToElement(data);
+        const element = HTMLStringToElement(data);
         header.prepend(element);
     }
 }
