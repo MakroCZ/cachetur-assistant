@@ -800,9 +800,12 @@ async function ctgsakMapInit() {
     ctGetTripRoute(storedTrip);
 }
 
-function ctPGCMapInit() {
+async function ctPGCMapInit() {
     console.log("Continuing initialization - PGC Live Map mode");
-    $("#map").bind("DOMSubtreeModified", ctPgcMapBindToChanges);
+    const map = await waitForElement("#map");
+
+    const observer = new MutationObserver(ctPgcMapBindToChanges);
+    observer.observe(map, {childList: true, subtree: true});
 
     let storedTrip = GM_getValue("cachetur_selected_trip", 0);
     ctGetAddedCodes(storedTrip);
