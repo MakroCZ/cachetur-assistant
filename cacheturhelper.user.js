@@ -769,33 +769,23 @@ async function ctInitInactive() {
     console.log("Assistant not being actively used, disabling");
     _ctPageHandler.ctInitInactive();
 
-    if ($("#GClh_II_running")[0] && $("gclh_nav#ctl00_gcNavigation")[0]) {
-        ctPrependToHeader2(
-            '<li id="cachetur-header"><span class="cachetur-header-text"><img src="https://cachetur.net/img/logo_top.png" alt="cachetur.no" /> <a href id="cachetur-activate">' +
-                i18next.t("activate.button") +
-                "</a></li>"
-        );
-        $("#cachetur-activate")[0].onclick = function () {
-            GM_setValue("cachetur_last_action", Date.now());
-        };
+    const dataToPrepend =   `<li id="cachetur-header">
+                                <span class="cachetur-header-text">
+                                    <img src="https://cachetur.net/img/logo_top.png" alt="cachetur.no" />
+                                    <a href id="cachetur-activate">
+                                        i18next.t("activate.button")
+                                    </a>
+                                </span>
+                            </li>`
 
-        $("#cachetur-activate").click(function (e) {
-            GM_setValue("cachetur_last_action", Date.now());
-        });
-    } else {
-        ctPrependToHeader(
-            '<li id="cachetur-header"><span class="cachetur-header-text"><img src="https://cachetur.net/img/logo_top.png" alt="cachetur.no" /> <a href id="cachetur-activate">' +
-                i18next.t("activate.button") +
-                "</a></li>"
-        );
-        $("#cachetur-activate")[0].onclick = function () {
-            GM_setValue("cachetur_last_action", Date.now());
-        };
 
-        $("#cachetur-activate").click(function (e) {
-            GM_setValue("cachetur_last_action", Date.now());
-        });
-    }
+    ctPrependToHeader(dataToPrepend);
+    const btnActivate = await waitForElement("#cachetur-activate");
+
+    btnActivate.addEventListener("click", () => {
+        GM_setValue("cachetur_last_action", Date.now());
+    });
+
     _initialized = true;
 }
 
