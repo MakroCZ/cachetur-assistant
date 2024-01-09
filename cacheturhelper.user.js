@@ -703,14 +703,10 @@ async function ctCheckLogin() {
     } else {
         if (ambassadorNames.includes(_ctCacheturUser))
             ctPrependToUser(
-                `<li id="cachetur-header1">
-                    <span class="cachetur-header-text">
-                        <img src="https://cachetur.net/img/logo_top.png" alt="cachetur.no" />
-                </li>
-                <li id="cachetur-header1">
-                    <span class="cachetur-header-text">
-                        Ambassador
-                </li>`
+                `<span class="cachetur-header-text">
+                    <img src="https://cachetur.net/img/logo_top.png" alt="cachetur.no" />
+                    Ambassador
+                </span>`
             );
         if (_ctCacheturUser === "thomfre") thomfre();
     }
@@ -906,7 +902,7 @@ function ctPrependToUser(data) {
     // Only GC web page
     const headers = _ctPageHandler.getUserElements();
     for (const elem of headers) {
-        elem.append(data);
+        elem.after(data);
     }
 }
 
