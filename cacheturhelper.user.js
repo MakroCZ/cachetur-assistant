@@ -95,6 +95,7 @@ const ambassadorNames = ["Heltinnen", "DougyB", "cghove", "Korsgat", "Don Rodolp
 class PageHandler {
     ctID;
     headerElement;
+    userElement;
 
     get_ctID() {
         return this.ctID;
@@ -195,7 +196,27 @@ class PageHandler {
         );
     }
 
+    getUserElements() {
+        if (this.getUserSelector() == "") {
+            return [];
+        }
+        if (this.userElement) {
+            return this.userElement;
+        }
+        this.userElement = document.querySelectorAll(this.getUserSelector());
+        if (this.userElement) {
+            return this.userElement;
+        }
+        throw Error(
+            "Header element:" + this.getHeaderSelector() + " not found"
+        );
+    }
+
     getHeaderSelector() {
+        throw Error("Not implemented");
+    }
+
+    getUserSelector() {
         throw Error("Not implemented");
     }
 }
@@ -213,6 +234,10 @@ class GC_CachePageHandler extends PageHandler {
     getHeaderSelector() {
         return ".user-menu";
     }
+
+    getUserSelector() {
+        return "span.username";
+    }
 }
 
 // Old map
@@ -228,6 +253,10 @@ class GC_BrowseMapPageHandler extends PageHandler {
 
     getHeaderSelector() {
         return ".user-menu";
+    }
+    
+    getUserSelector() {
+        return "span.username";
     }
 }
 
@@ -245,6 +274,10 @@ class GC_SearchMapPageHandler extends PageHandler {
     getHeaderSelector() {
         return ".user-menu";
     }
+    
+    getUserSelector() {
+        return "span.username";
+    }
 }
 
 class GC_BookmarkListPageHandler extends PageHandler {
@@ -260,6 +293,10 @@ class GC_BookmarkListPageHandler extends PageHandler {
     getHeaderSelector() {
         return ".user-menu";
     }
+    
+    getUserSelector() {
+        return "span.username";
+    }
 }
 
 class GC_GeotourPageHandler extends PageHandler {
@@ -274,6 +311,10 @@ class GC_GeotourPageHandler extends PageHandler {
 
     getHeaderSelector() {
         return ".user-menu";
+    }
+    
+    getUserSelector() {
+        return "span.username";
     }
 }
 
@@ -661,7 +702,7 @@ async function ctCheckLogin() {
         if (_ctCacheturUser === "thomfre") thomfre1();
     } else {
         if (ambassadorNames.includes(_ctCacheturUser))
-            ctPrependTouser(
+            ctPrependToUser(
                 `<li id="cachetur-header1">
                     <span class="cachetur-header-text">
                         <img src="https://cachetur.net/img/logo_top.png" alt="cachetur.no" />
@@ -861,23 +902,11 @@ function ctPrependToHeader2(data) {
     }
 }
 
-async function ctPrependTouser(data) {
-    let header;
-    //TODO: ctPage
-    if (
-        _ctPage === "gc_map" ||
-        _ctPage === "gc_map_new" ||
-        _ctPage === "gc_bmlist" ||
-        _ctPage === "gc_geocache" ||
-        _ctPage === "gc_geotour"
-    )
-        header = $("span.username");
-
-    if (header) {
-        header.append(data);
-        await waitForElement("#pgc");
-        $("#cachetur-header1").remove();
-        $("#cachetur-header1").remove();
+function ctPrependToUser(data) {
+    // Only GC web page
+    const headers = _ctPageHandler.getUserElements();
+    for (const elem of headers) {
+        elem.append(data);
     }
 }
 
