@@ -834,7 +834,7 @@ async function ctgsakMapInit() {
 
     const storedTrip = GM_getValue("cachetur_selected_trip", 0);
     ctGetAddedCodes(storedTrip);
-    ctGetTripRoute(storedTrip);
+    ctGetShowTripData(storedTrip);
 }
 
 async function ctPGCMapInit() {
@@ -846,7 +846,7 @@ async function ctPGCMapInit() {
 
     let storedTrip = GM_getValue("cachetur_selected_trip", 0);
     ctGetAddedCodes(storedTrip);
-    ctGetTripRoute(storedTrip);
+    ctGetShowTripData(storedTrip);
 }
 
 function ctPrependToHeader(data) {
@@ -1010,7 +1010,7 @@ function ctCreateTripInjectData(data) {
 function tripChanged() {
     const id = document.getElementById("cachetur-tur-valg").value;
     ctGetAddedCodes(id);
-    ctGetTripRoute(id);
+    ctGetShowTripData(id);
     GM_setValue("cachetur_selected_trip", id);
     GM_setValue("cachetur_last_action", Date.now());
 }
@@ -1048,7 +1048,7 @@ async function refreshTrip() {
     optionElement.value = id;
     
     ctGetAddedCodes(id);
-    ctGetTripRoute(id);
+    ctGetShowTripData(id);
     GM_setValue("cachetur_last_action", Date.now());
     console.log("Finished refreshing list of trips and data for selected trip");
 }
@@ -1114,7 +1114,7 @@ async function ctCreateTripList() {
     }
 
     ctGetAddedCodes(storedTrip);
-    ctGetTripRoute(storedTrip);
+    ctGetShowTripData(storedTrip);
 
     tripSelector.addEventListener("change", tripChanged);
     document.getElementById("cachetur-tur-open").addEventListener("click", openTrip);
@@ -1146,16 +1146,16 @@ async function ctGetAddedCodes(id) {
     document.getElementById("cachetur-tur-antall").innerHTML = _ctCodesAdded.length;
 }
 
-async function ctGetTripRoute(id) {
+async function ctGetShowTripData(id) {
     if (!id || id.endsWith("L")) {
-        $("#cachetur-tur-fitbounds").prop("disabled", true);
+        document.getElementById("cachetur-tur-fitbounds").attributes["disabled"] = true;
         return;
     }
 
     let unsafeLeafletObject = ctGetUnsafeLeafletObject();
     if (unsafeLeafletObject === null) {
-        $("#cachetur-tur-fitbounds").prop("disabled", true);
-        $("#cachetur-tur-add-ct-caches").prop("disabled", true);
+        document.getElementById("cachetur-tur-fitbounds").attributes["disabled"] = true;
+        document.getElementById("cachetur-tur-add-ct-caches").attributes["disabled"] = true;
         console.log("ERROR: Can't find leaflet object");
         return;
     }
@@ -1175,7 +1175,7 @@ async function ctGetTripRoute(id) {
 
     if (routeData.length <= 0) {
         console.log("Couldn't find any route for given trip/list");
-        $("#cachetur-tur-fitbounds").prop("disabled", true);
+        document.getElementById("cachetur-tur-fitbounds").attributes["disabled"] = true;
         return;
     }
 
@@ -1192,9 +1192,6 @@ async function ctGetTripRoute(id) {
     console.log("Injecting route");
     unsafeLeafletObject.addLayer(unsafeWindow.cacheturRouteLayer);
 
-    $("#cachetur-tur-fitbounds").prop("disabled", false);
-    $("#cachetur-tur-add-ct-caches").prop("disabled", false);
-
     const waypointData = await ctApiCall("planlagt_get_noncaches", {
         tur: id,
     });
@@ -1210,23 +1207,20 @@ async function ctGetTripRoute(id) {
     }
 
     let markers = [];
-    waypointData.forEach(function (item) {
-        markers.push(
-            L.marker([item.lat, item.lon], {
-                icon: L.divIcon({
-                    className: "cachetur-map_marker",
-                    iconSize: [18, 18],
-                    riseOnHover: true,
-                    html:
-                        '<div class="cachetur-map_marker_symbol " title="' +
-                        item.name +
-                        '"><img src="' +
-                        item.typeicon +
-                        '" /></div><span class="label label-default"></span>',
-                }),
-            })
-        );
-    });
+    for (let item of waypointData) {
+        const icon = L.divIcon({
+            className: "cachetur-map_marker",
+            iconSize: [18, 18],
+            riseOnHover: true,
+            html:`<div class="cachetur-map_marker_symbol" title="item.name">
+                        <img src="item.typeicon"/>
+                  </div>
+                  <span class="label label-default"></span>`
+            });
+        
+        const newWP = L.marker([item.lat, item.lon], {icon: icon});
+        markers.push(newWP);
+    }
 
     _waypointLayer = L.layerGroup(markers);
     unsafeWindow.cacheturWaypointsLayer = cloneInto(
@@ -1237,8 +1231,8 @@ async function ctGetTripRoute(id) {
     console.log("Injecting waypoints");
     unsafeLeafletObject.addLayer(unsafeWindow.cacheturWaypointsLayer);
 
-    $("#cachetur-tur-fitbounds").prop("disabled", false);
-    $("#cachetur-tur-add-ct-caches").prop("disabled", false);
+    document.getElementById("cachetur-tur-fitbounds").attributes["disabled"] = false;
+    document.getElementById("cachetur-tur-add-ct-caches").attributes["disabled"] = false;
 }
 
 async function ctAddCacheMarkersToMap(id) {
@@ -1969,7 +1963,7 @@ async function ctPGCSendVGPSSelected() {
     });
     if (data === "Ok") {
         ctGetAddedCodes(tur);
-        ctGetTripRoute(tur);
+        ctGetShowTripData(tur);
         alert(i18next.t("vgps.sent"));
     } else {
         alert(i18next.t("vgps.error"));
@@ -2093,7 +2087,7 @@ async function ctListSendSelected() {
         });
         if (data === "Ok") {
             ctGetAddedCodes(tur);
-            ctGetTripRoute(tur);
+            ctGetShowTripData(tur);
             alert(i18next.t("vgps.sent"));
         } else {
             alert(i18next.t("vgps.error"));
