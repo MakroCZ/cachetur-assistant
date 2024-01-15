@@ -1301,32 +1301,42 @@ async function ctGetPublicLists(cache) {
     console.log("Injecting list of lists");
     let alternate = false;
     let listHtml =
-        '<div class="CacheDetailNavigationWidget"><h3 class="WidgetHeader"><img src="https://cachetur.no/api/img/cachetur-15.png" /> Cachetur.no</h3><div class="WidgetBody"><ul class="BookmarkList">';
-    listData.forEach(function (list) {
-        let listElement =
-            '<li class="' +
-            (alternate ? "AlternatingRow" : "") +
-            '"><a href="https://cachetur.no/' +
-            (list.source === "triptemplate"
-                ? "tur"
-                : list.source === "trip"
-                ? "fellestur"
-                : "liste") +
-            "/" +
-            list.id +
-            '">' +
-            list.name +
-            "</a><br>" +
-            i18next.t("template.by") +
-            " " +
-            list.owner +
-            "</li>";
-        alternate = !alternate;
-        listHtml = listHtml + listElement;
-    });
-    listHtml = listHtml + "</ul></div></div>";
+        `<div class="CacheDetailNavigationWidget">
+            <h3 class="WidgetHeader">
+                <img src="https://cachetur.no/api/img/cachetur-15.png" />
+                Cachetur.no
+            </h3>
+            <div class="WidgetBody">
+                <ul class="BookmarkList">'`;
 
-    $(".sidebar").append(listHtml);
+    for (let item of listData) {
+        let source;
+        switch(item.source) {
+            case "triptemplate":
+                source = "tur";
+                break;
+            case "trip":
+                source = "fellestur";
+                break;
+            default:
+                source = "liste";
+                break;
+        }
+        let listElement = 
+                `<li ${(alternate ? "class=\"AlternatingRow" : "")}">
+                    <a href="https://cachetur.no/${source}/${item.id}>${item.name}</a>
+                    <br>${i18next.t("template.by")} ${item.owner}
+                </li>`
+        alternate = !alternate;
+        listHtml += listElement;
+    }
+    
+    listHtml += "</ul></div></div>";
+
+    const elements = document.getElementsByClassName("sidebar");
+    for (const elem of elements) {
+        elem.appendChild(HTMLStringToElement(listHtml));
+    }
 }
 
 async function ctGetPublicLists_gc_map_new(cache) {
