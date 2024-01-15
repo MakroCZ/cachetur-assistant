@@ -1240,8 +1240,8 @@ async function ctAddCacheMarkersToMap(id) {
 
     let unsafeLeafletObject = ctGetUnsafeLeafletObject();
     if (unsafeLeafletObject === null) {
-        $("#cachetur-tur-fitbounds").prop("disabled", true);
-        $("#cachetur-tur-add-ct-caches").prop("disabled", true);
+        document.getElementById("cachetur-tur-fitbounds").attributes["disabled"] = true;
+        document.getElementById("cachetur-tur-add-ct-caches").attributes["disabled"] = true;
         console.log("ERROR: Can't find leaflet object");
         return;
     }
@@ -1255,30 +1255,27 @@ async function ctAddCacheMarkersToMap(id) {
 
     if (cacheData.length <= 0) {
         console.log("Couldn't find any cache data for given trip/list");
-        $("#cachetur-tur-fitbounds").prop("disabled", true);
+        document.getElementById("cachetur-tur-fitbounds").attributes["disabled"] = true;
         return;
     }
 
     console.log("Cache data received, constructing markers");
 
     let markers = [];
-    cacheData.forEach(function (item) {
-        markers.push(
-            L.marker([item.lat, item.lon], {
-                icon: L.divIcon({
-                    className: "cachetur-map_marker",
-                    iconSize: [18, 18],
-                    riseOnHover: true,
-                    html:
-                        '<div class="cachetur-map_marker_symbol " title="' +
-                        item.name +
-                        '"><img src="' +
-                        item.typeicon +
-                        '" /></div><span class="label label-default"></span>',
-                }),
-            })
-        );
-    });
+    for (let item of waypointData) {
+        const icon = L.divIcon({
+            className: "cachetur-map_marker",
+            iconSize: [18, 18],
+            riseOnHover: true,
+            html:`<div class="cachetur-map_marker_symbol" title="item.name">
+                        <img src="item.typeicon"/>
+                  </div>
+                  <span class="label label-default"></span>`
+            });
+        
+        const newWP = L.marker([item.lat, item.lon], {icon: icon});
+        markers.push(newWP);
+    }
 
     _cacheLayer = L.layerGroup(markers);
     unsafeWindow.cacheturCacheLayer = cloneInto(_cacheLayer, unsafeWindow);
@@ -1286,7 +1283,8 @@ async function ctAddCacheMarkersToMap(id) {
     console.log("Injecting caches");
     unsafeLeafletObject.addLayer(unsafeWindow.cacheturCacheLayer);
 
-    $("#cachetur-tur-fitbounds").prop("disabled", false);
+    document.getElementById("cachetur-tur-fitbounds").attributes["disabled"] = false;
+    document.getElementById("cachetur-tur-add-ct-caches").attributes["disabled"] = false;
 }
 
 async function ctGetPublicLists(cache) {
