@@ -789,9 +789,9 @@ async function ctInitNotLoggedIn() {
                                 <span class="cachetur-header-text">
                                     <a href="https://cachetur.no/" target="_blank">
                                         <img src="https://cachetur.net/img/logo_top.png" alt="cachetur.no" />
-                                        i18next.t("menu.notloggedin")
+                                        ${i18next.t("menu.notloggedin")}
                                         <br>
-                                        i18next.t("menu.deactivated")
+                                        ${i18next.t("menu.deactivated")}
                                     </a>
                                 </span>
                             </li>`
@@ -810,7 +810,7 @@ async function ctInitInactive() {
                                 <span class="cachetur-header-text">
                                     <img src="https://cachetur.net/img/logo_top.png" alt="cachetur.no" />
                                     <a href id="cachetur-activate">
-                                        i18next.t("activate.button")
+                                        ${i18next.t("activate.button")}
                                     </a>
                                 </span>
                             </li>`
@@ -982,21 +982,21 @@ function ctCreateTripInjectData(data) {
 
     ctPrependToHeader(
         `<li id="cachetur-header">
-            <img src="https://cachetur.net/img/logo_top.png" title="i18next.t("menu.loggedinas") _ctCacheturUser />
-            i18next.t("menu.addto")
+            <img src="https://cachetur.net/img/logo_top.png" title="${i18next.t("menu.loggedinas")} ${_ctCacheturUser}" />
+            ${i18next.t("menu.addto")}
             <select id="cachetur-tur-valg">
-                data
+                ${data}
             </select>
-            <button id="cachetur-tur-open" class="cachetur-menu-button" type="button" title="i18next.t("menu.opentrip")">
+            <button id="cachetur-tur-open" class="cachetur-menu-button" type="button" title="${i18next.t("menu.opentrip")}">
                 <img src="https://cachetur.no/api/img/arrow.png" style="height:16px;"/>
             </button>
-            <button id="cachetur-tur-refresh" type="button" class="cachetur-menu-button" title="i18next.t("menu.refresh")">
+            <button id="cachetur-tur-refresh" type="button" class="cachetur-menu-button" title="${i18next.t("menu.refresh")}">
                 <img src="https://cachetur.no/api/img/refresh.png" style="height:16px;"/>
             </button>
-            <button id="cachetur-tur-add-ct-caches" type="button" class="cachetur-menu-button" title="i18next.t("menu.showonmap")">
+            <button id="cachetur-tur-add-ct-caches" type="button" class="cachetur-menu-button" title="${i18next.t("menu.showonmap")}">
                 <img src="https://cachetur.no/api/img/map.png" style="height:16px;"/>
             </button>
-            <button id="cachetur-tur-fitbounds" class="cachetur-menu-button" type="button" title="i18next.t("menu.fitroute")">
+            <button id="cachetur-tur-fitbounds" class="cachetur-menu-button" type="button" title="${i18next.t("menu.fitroute")}">
                 <img src="https://cachetur.no/api/img/zoom.png" style="height:16px;"/>
             </button>
             <span id="cachetur-tur-antall-container">
@@ -1040,7 +1040,7 @@ async function refreshTrip() {
     let options = "";
 
     for (let item of available) {
-        options += `<option value="item.id">item.turnavn</option>`;
+        options += `<option value="${item.id}">${item.turnavn}</option>`;
     }
 
     optionElement.text = "";
@@ -1080,7 +1080,7 @@ async function ctCreateTripList() {
     let options = "";
 
     for (let item of available) {
-        options += `<option value="item.id">item.turnavn</option>`;
+        options += `<option value="${item.id}">${item.turnavn}</option>`;
     }
 
     _ctPageHandler.ctCreateTripList();
@@ -1212,8 +1212,8 @@ async function ctGetShowTripData(id) {
             className: "cachetur-map_marker",
             iconSize: [18, 18],
             riseOnHover: true,
-            html:`<div class="cachetur-map_marker_symbol" title="item.name">
-                        <img src="item.typeicon"/>
+            html:`<div class="cachetur-map_marker_symbol" title="${item.name}">
+                        <img src="${item.typeicon}"/>
                   </div>
                   <span class="label label-default"></span>`
             });
@@ -1267,8 +1267,8 @@ async function ctAddCacheMarkersToMap(id) {
             className: "cachetur-map_marker",
             iconSize: [18, 18],
             riseOnHover: true,
-            html:`<div class="cachetur-map_marker_symbol" title="item.name">
-                        <img src="item.typeicon"/>
+            html:`<div class="cachetur-map_marker_symbol" title="${item.name}">
+                        <img src="${item.typeicon}"/>
                   </div>
                   <span class="label label-default"></span>`
             });
