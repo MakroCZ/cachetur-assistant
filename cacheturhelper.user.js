@@ -1143,7 +1143,7 @@ async function ctGetAddedCodes(id) {
     ctPGCCheckVgps();
     ctCheckList();
 
-    $("#cachetur-tur-antall").html(_ctCodesAdded.length);
+    document.getElementById("cachetur-tur-antall").innerHTML = _ctCodesAdded.length;
 }
 
 async function ctGetTripRoute(id) {
