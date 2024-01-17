@@ -1307,7 +1307,7 @@ async function ctGetPublicLists(cache) {
                 Cachetur.no
             </h3>
             <div class="WidgetBody">
-                <ul class="BookmarkList">'`;
+                <ul class="BookmarkList">`;
 
     for (let item of listData) {
         let source;
