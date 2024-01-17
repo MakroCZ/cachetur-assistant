@@ -219,6 +219,10 @@ class PageHandler {
     getUserSelector() {
         throw Error("Not implemented");
     }
+
+    getUnsafeLeafletObject() {
+        return null;
+    }
 }
 
 class GC_CachePageHandler extends PageHandler {
@@ -258,6 +262,10 @@ class GC_BrowseMapPageHandler extends PageHandler {
     getUserSelector() {
         return "span.username";
     }
+
+    getUnsafeLeafletObject() {
+        return unsafeWindow.MapSettings?.Map;
+    }
 }
 
 // New map
@@ -277,6 +285,10 @@ class GC_SearchMapPageHandler extends PageHandler {
     
     getUserSelector() {
         return "span.username";
+    }
+
+    getUnsafeLeafletObject() {
+        return unsafeWindow.cacheturGCMap;
     }
 }
 
@@ -316,6 +328,10 @@ class GC_GeotourPageHandler extends PageHandler {
     getUserSelector() {
         return "span.username";
     }
+
+    getUnsafeLeafletObject() {
+        return unsafeWindow.cacheturGCMap;
+    }
 }
 
 class PGC_VirtualGPSPageHandler extends PageHandler {
@@ -346,6 +362,15 @@ class PGC_MapPageHandler extends PageHandler {
     getHeaderSelector() {
         return "#pgcMainMenu ul.navbar-right";
     }
+
+    getUnsafeLeafletObject() {
+        if (unsafeWindow.PGC_LiveMap) {
+            return unsafeWindow.PGC_LiveMap.map;
+        }
+        if (unsafeWindow.freeDraw) {
+            return unsafeWindow.freeDraw.map;
+        }
+    }
 }
 
 class GSAK_PageHandler extends PageHandler {
@@ -361,6 +386,10 @@ class GSAK_PageHandler extends PageHandler {
     getHeaderSelector() {
         return ".leaflet-control-scale";
     }
+
+    getUnsafeLeafletObject() {
+        return unsafeWindow.map;
+    }
 }
 
 class CT_RVSitesPageHandler extends PageHandler {
@@ -375,6 +404,10 @@ class CT_RVSitesPageHandler extends PageHandler {
 
     getHeaderSelector() {
         return ".navbar-right";
+    }
+
+    getUnsafeLeafletObject() {
+        return unsafeWindow.map;
     }
 }
 
@@ -1060,8 +1093,8 @@ function addCache() {
 }
 
 function fitBounds() {
-    let unsafeLeafletObject = ctGetUnsafeLeafletObject();
-    if (unsafeLeafletObject !== null && unsafeWindow.cacheturRouteLayer)
+    const unsafeLeafletObject = _ctPageHandler.getUnsafeLeafletObject();
+    if (unsafeLeafletObject && unsafeWindow.cacheturRouteLayer)
         unsafeLeafletObject.fitBounds(
             unsafeWindow.cacheturRouteLayer.getBounds()
         );
@@ -1152,8 +1185,8 @@ async function ctGetShowTripData(id) {
         return;
     }
 
-    let unsafeLeafletObject = ctGetUnsafeLeafletObject();
-    if (unsafeLeafletObject === null) {
+    const unsafeLeafletObject = _ctPageHandler.getUnsafeLeafletObject();
+    if (!unsafeLeafletObject) {
         document.getElementById("cachetur-tur-fitbounds").attributes["disabled"] = true;
         document.getElementById("cachetur-tur-add-ct-caches").attributes["disabled"] = true;
         console.log("ERROR: Can't find leaflet object");
@@ -1238,8 +1271,8 @@ async function ctGetShowTripData(id) {
 async function ctAddCacheMarkersToMap(id) {
     console.log("Attempting to fetch cache coordinates for selected trip");
 
-    let unsafeLeafletObject = ctGetUnsafeLeafletObject();
-    if (unsafeLeafletObject === null) {
+    const unsafeLeafletObject = _ctPageHandler.getUnsafeLeafletObject();
+    if (!unsafeLeafletObject) {
         document.getElementById("cachetur-tur-fitbounds").attributes["disabled"] = true;
         document.getElementById("cachetur-tur-add-ct-caches").attributes["disabled"] = true;
         console.log("ERROR: Can't find leaflet object");
@@ -1391,31 +1424,6 @@ async function ctGetPublicLists_gc_map_new(cache) {
     const elements = document.getElementsByClassName("cache-preview-action-menu");
     for (const elem of elements) {
         elem.prepend(HTMLStringToElement(listHtml));
-    }
-}
-
-//TODO: ctPage easy?
-function ctGetUnsafeLeafletObject() {
-    if (_ctPage === "gc_map" && unsafeWindow.MapSettings) {
-        return unsafeWindow.MapSettings.Map;
-    } else if (_ctPage === "gc_map_new" && unsafeWindow.cacheturGCMap) {
-        return unsafeWindow.cacheturGCMap;
-    } else if (_ctPage === "gsak" && unsafeWindow.map) {
-        return unsafeWindow.map;
-    } else if (_ctPage === "gc_geotour" && unsafeWindow.cacheturGCMap) {
-        return unsafeWindow.cacheturGCMap;
-    } else if (_ctPage === "bobil" && unsafeWindow.map) {
-        return unsafeWindow.map;
-    } else if (_ctPage === "pgc_map" && unsafeWindow.PGC_LiveMap) {
-        return unsafeWindow.PGC_LiveMap.map;
-    } else if (
-        _ctPage === "pgc_map" &&
-        unsafeWindow.freeDraw &&
-        unsafeWindow.freeDraw.map
-    ) {
-        return unsafeWindow.freeDraw.map;
-    } else {
-        return null;
     }
 }
 
@@ -1631,8 +1639,10 @@ function ctInitPGCLiveMapListener() {
 
     console.log("Initializing PGC Live Map layeradd-listener");
 
-    let map = ctGetUnsafeLeafletObject();
-    if (map === null) return;
+    const map = _ctPageHandler.getUnsafeLeafletObject();
+    if (!map) {
+        return;
+    }
 
     map.on("layeradd", function (layer) {
         setTimeout(ctPGCCheckAndMarkLayer.bind(null, layer), 50);
@@ -1663,8 +1673,10 @@ function ctInitgsakMapListener() {
 
     console.log("Initializing gsak listener");
 
-    let map = ctGetUnsafeLeafletObject();
-    if (map === null) return;
+    const map = _ctPageHandler.getUnsafeLeafletObject();
+    if (!map) {
+        return;
+    }
 
     map.on("layeradd", function (layer) {
         setTimeout(ctgsakCheckAndMarkLayer.bind(null, layer), 50);
@@ -2008,8 +2020,10 @@ function ctPGCSelectVGPS() {
 function ctPGCMarkFound() {
     if (_ctPage !== "pgc_map") return; //TODO: ctPage
 
-    let map = ctGetUnsafeLeafletObject();
-    if (map === null) return;
+    const map = _ctPageHandler.getUnsafeLeafletObject();
+    if (!map) {
+        return;
+    }
 
     map.eachLayer(function (layer) {
         ctPGCCheckAndMarkLayer(layer);
