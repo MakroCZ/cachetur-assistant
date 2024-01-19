@@ -223,6 +223,25 @@ class PageHandler {
     getUnsafeLeafletObject() {
         return null;
     }
+
+    async initAddLinks() {
+        throw Error("Not implemented");
+    }
+
+    addCacheturToCacheMenu(elem, gcCode) {
+        const img =
+        `<img src="https://cachetur.no/api/img/cachetur-15.png"
+                title="${i18next.t("send")}"
+                class="cachetur-add-code"
+                style="cursor: pointer;"
+                data-code="${gcCode}" />`;
+        elem.prepend(img);
+        elem.addClass("cachetur-add");
+    }
+
+    addCacheToListError(img) {
+        img.setAttribute("src", "https://cachetur.no/api/img/cachetur-15-error.png")
+    }
 }
 
 class GC_CachePageHandler extends PageHandler {
@@ -241,6 +260,41 @@ class GC_CachePageHandler extends PageHandler {
 
     getUserSelector() {
         return "span.username";
+    }
+
+    async initAddLinks() {
+        const elem = document.getElementById("ctl00_ContentBody_CoordInfoLinkControl1_uxCoordInfoCode");
+        ctAddToCoordInfoLink(elem);
+    }
+
+    addCacheturToCacheMenu(elem, gcCode) {
+        console.log("injecting cachetur menus to geocaches");
+        elem = document.getElementById("ctl00_ContentBody_CoordInfoLinkControl1_uxCoordInfoCode");
+        ctGetPublicLists(gcCode);
+        
+        const stringElem = `
+            <ul id="cachetur-controls-container">
+                <li>
+                    <a href class="cachetur-add-code"
+                       style="cursor: pointer;"
+                       data-code="${gcCode}">
+                            ${i18next.t("send")}
+                    </a>
+                </li>
+            </ul>`;
+
+        const elemToAdd = HTMLStringToElement(stringElem);
+        const elements = document.getElementsByClassName("CacheDetailNavigation");
+        for (const item of elements) {
+            item.appendChild(elemToAdd);
+        }
+        elem.addClass("cachetur-add");
+    }
+
+    addCacheToListError(img) {
+        for (const item of img) {
+            item.addClass("cachetur-add-code-error");
+        }
     }
 }
 
@@ -266,6 +320,43 @@ class GC_BrowseMapPageHandler extends PageHandler {
     getUnsafeLeafletObject() {
         return unsafeWindow.MapSettings?.Map;
     }
+
+    async initAddLinks() {
+        const formElement = document.getElementById("form1");
+        const observer = new MutationObserver(ctMapBindToDOMChanges);
+        observer.observe(formElement, {childList: true, subtree: true});
+        if (document.querySelector("script[src*='//maps.googleapis.com/']")) {
+            await waitForElement(".map-cta");
+            const stringAlert = `
+                <large style="color: red; position: absolute; top: 62px; right: 25px;">
+                    ${i18next.t("alerts.google")}
+                </large>`;
+            const elemAlert = HTMLStringToElement(stringAlert);
+            const elems = document.getElementsByClassName("map-wrapper");
+            for (const elem of elems) {
+                elem.append(elemAlert);
+            }
+        }
+    }
+
+    addCacheturToCacheMenu(elem, gcCode) {
+        const stringElem = `
+            <div class="links Clear cachetur-controls-container">
+                <a href class="cachetur-add-code"
+                    style="cursor: pointer;"
+                    data-code="${gcCode}">
+                        <img src="https://cachetur.no/api/img/cachetur-15.png" />
+                        ${i18next.t("send")}
+                </a>
+            </div>`;
+        const elemToAdd = HTMLStringToElement(stringElem);
+        elem.parenNode.append(elemToAdd);
+        elem.addClass("cachetur-add");
+    }
+
+    addCacheToListError(img) {
+        img[0]?.innerHTML = `<img src="https://cachetur.no/api/img/cachetur-15-error.png" />${i18next.t("send")}`
+    }
 }
 
 // New map
@@ -290,6 +381,58 @@ class GC_SearchMapPageHandler extends PageHandler {
     getUnsafeLeafletObject() {
         return unsafeWindow.cacheturGCMap;
     }
+
+    async initAddLinks() {
+        if (document.querySelector("script async[src*='maps.googleapis.com/maps-api-v3']")) {
+            console.log("google map found");
+            await waitForElement("#clear-map-control");
+            
+            const stringAlert = `
+                <large style="color: red; position: absolute; top: 62px; right: 25px;">
+                    ${i18next.t("alerts.google")}
+                </large>`;
+            const elemAlert = HTMLStringToElement(stringAlert);
+            const elems = document.getElementsByClassName("map-container");
+            for (const elem of elems) {
+                elem.append(elemAlert);
+            }
+        }
+        if (!document.querySelector("primary log-geocache"))
+            ctWatchNewMap();
+    }
+
+    addCacheturToCacheMenu(elem, gcCode) {
+        console.log("injecting cachetur menus to geocache " + gcCode);
+        const stringElem = `
+            <br>
+            <ul id="cachetur-controls-container">
+                <li>
+                    <img src="https://cachetur.no/api/img/cachetur-15.png" />
+                    <a href class="cachetur-add-code"
+                        style="cursor: pointer;"
+                        data-code="${gcCode}">
+                            ${i18next.t("send")}
+                    </a>
+                </li>
+            </ul>`;
+        const elemToAdd = HTMLStringToElement(stringElem);
+        const elements = document.getElementsByClassName("cache-preview-action-menu");
+        for(const item of elements) {
+            item.prepend(elemToAdd);
+        }
+        ctGetPublicLists_gc_map_new(gcCode);
+
+        const metadataElements = document.getElementsByClassName("cache-metadata-code");
+        for(const item of metadataElements) {
+            item.addClass("cachetur-add");
+        }
+    }
+
+    addCacheToListError(img) {
+        for (const item of img) {
+            item.addClass("cachetur-add-code-error");
+        }
+    }
 }
 
 class GC_BookmarkListPageHandler extends PageHandler {
@@ -308,6 +451,10 @@ class GC_BookmarkListPageHandler extends PageHandler {
     
     getUserSelector() {
         return "span.username";
+    }
+
+    async initAddLinks() {
+        ctAddSendListButton();
     }
 }
 
@@ -332,6 +479,12 @@ class GC_GeotourPageHandler extends PageHandler {
     getUnsafeLeafletObject() {
         return unsafeWindow.cacheturGCMap;
     }
+
+    async initAddLinks() {
+        const formElement = document.getElementById("map_container");
+        const observer = new MutationObserver(ctMapBindToDOMChanges);
+        observer.observe(formElement, {childList: true, subtree: true});
+    }
 }
 
 class PGC_VirtualGPSPageHandler extends PageHandler {
@@ -346,6 +499,10 @@ class PGC_VirtualGPSPageHandler extends PageHandler {
 
     getHeaderSelector() {
         return "#pgcMainMenu ul.navbar-right";
+    }
+
+    async initAddLinks() {
+        ctAddSendPgcVgpsButton();
     }
 }
 
@@ -371,6 +528,11 @@ class PGC_MapPageHandler extends PageHandler {
             return unsafeWindow.freeDraw.map;
         }
     }
+
+    async initAddLinks() {
+        await waitForElement("#map");
+        ctPGCMapInit();
+    }
 }
 
 class GSAK_PageHandler extends PageHandler {
@@ -389,6 +551,12 @@ class GSAK_PageHandler extends PageHandler {
 
     getUnsafeLeafletObject() {
         return unsafeWindow.map;
+    }
+
+    async initAddLinks() {
+        await waitForElement("#map");
+        ctgsakMapInit();
+        ctWatchgsakMap();
     }
 }
 
@@ -802,12 +970,12 @@ function ctApiCall(call, params) {
     });
 }
 
-function ctInit() {
+async function ctInit() {
     debugger;
     if (_initialized) return;
     console.log("Initializing Cacheturassistenten");
     ctCreateTripList();
-    ctInitAddLinks();
+    await _ctPageHandler.InitAddLinks();
     ctInitPGCLiveMapListener();
     ctInitgsakMapListener();
     _initialized = true;
@@ -1427,79 +1595,6 @@ async function ctGetPublicLists_gc_map_new(cache) {
     }
 }
 
-async function ctInitAddLinks() {
-    if (_ctCacheturUser === "") return;
-    console.log("Inside ctInitAddLinks, starting");
-    //TODO: ctPage
-    switch (_ctPage) {
-        case "gc_geocache":
-            ctAddToCoordInfoLink(
-                $(
-                    "#ctl00_ContentBody_CoordInfoLinkControl1_uxCoordInfoCode"
-                )
-            );
-            break;
-        case "gc_bmlist":
-            ctAddSendListButton();
-            break;
-        case "gc_map":
-            $("#form1").bind("DOMSubtreeModified", ctMapBindToDOMChanges);
-            if (
-                document.querySelector(
-                    "script[src*='//maps.googleapis.com/']"
-                )
-            ) {
-                await waitForElement(".map-cta");
-                $(".map-wrapper").append(
-                    '<large style="color: red; position: absolute; top: 62px; right: 25px;">' +
-                        i18next.t("alerts.google") +
-                        "</large>"
-                );
-                return;
-            }
-            break;
-        case "gc_map_new":
-            if (
-                document.querySelector(
-                    "script async[src*='maps.googleapis.com/maps-api-v3']"
-                )
-            ) {
-                console.log("google map");
-                await waitForElement("#clear-map-control");
-                $(".map-container").append(
-                    '<large style="color: red; position: absolute; top: 62px; right: 25px;">' +
-                        i18next.t("alerts.google") +
-                        "</large>"
-                );
-                break;
-            }
-            if (!document.querySelector("primary log-geocache"))
-                ctWatchNewMap();
-
-            break;
-        case "gc_geotour":
-            $("#map_container").bind(
-                "DOMSubtreeModified",
-                ctMapBindToDOMChanges
-            );
-            break;
-        case "gsak":
-            await waitForElement("#map");
-            ctgsakMapInit();
-            ctWatchgsakMap();
-
-            break;
-        case "pgc_map":
-            await waitForElement("#map");
-            ctPGCMapInit();
-            break;
-        case "pgc_vgps":
-            ctAddSendPgcVgpsButton();
-            break;
-    }
-    console.log("Inside ctInitAddLinks, ending");
-}
-
 function ctWatchgsakMap() {
     console.log("start mutationobserver");
     let targetNode = document.body;
@@ -1707,107 +1802,46 @@ function ctMapBindToDOMChanges() {
     }
 }
 
-function ctAddToCoordInfoLink(code) {
-    if (!code.hasClass("cachetur-add")) {
-        let gcCode = code.html();
-        let img =
-            '<img src="https://cachetur.no/api/img/cachetur-15.png" title="' +
-            i18next.t("send") +
-            '" class="cachetur-add-code" style="cursor: pointer;" data-code="' +
-            gcCode +
-            '" /> ';
+function tryAddClassCacheturAdd(elem) {
+    if (elem.classList.contains("cachetur-add")) {
+        return;
+    }
+    const gcCode = elem.innerHTML;
 
-        if (_ctPage === "gc_geocache") {
-            //TODO: ctPage
-            console.log("injecting cachetur menus to geocaches");
-            code = $(
-                "#ctl00_ContentBody_CoordInfoLinkControl1_uxCoordInfoCode"
-            );
-            ctGetPublicLists(gcCode);
-            $(".CacheDetailNavigation").append(
-                '<ul id="cachetur-controls-container"><li><a href class="cachetur-add-code" style="cursor: pointer;" data-code="' +
-                    gcCode +
-                    '">' +
-                    i18next.t("send") +
-                    "</a></li></ul>"
-            );
-        } else if (_ctPage === "gc_map") {
-            //TODO: ctPage
-            let img =
-                '<a href class="cachetur-add-code" style="cursor: pointer;" data-code="' +
-                gcCode +
-                '"><img src="https://cachetur.no/api/img/cachetur-15.png" /> ' +
-                i18next.t("send") +
-                "</a>";
-            code.parent().append(
-                '<div class="links Clear cachetur-controls-container">' +
-                    img +
-                    "</div>"
-            );
-        } else if (_ctPage === "gc_map_new") {
-            //TODO: ctPage
-            console.log("injecting cachetur menus to geocache " + gcCode);
-            code = ".cache-metadata-code";
-            $(".cache-preview-action-menu").prepend(
-                '<br><ul id="cachetur-controls-container"><li><img src="https://cachetur.no/api/img/cachetur-15.png" /><a href class="cachetur-add-code" style="cursor: pointer;" data-code="' +
-                    gcCode +
-                    '"> ' +
-                    i18next.t("send") +
-                    "</a></li></ul>"
-            );
-            ctGetPublicLists_gc_map_new(gcCode);
-        } else {
-            code.prepend(img);
-        }
-        if (_ctPage === "gc_map_new") {
-            // TODO: ctPage
-            $(".cache-metadata-code").addClass("cachetur-add");
-        } else {
-            code.addClass("cachetur-add");
-        }
+    _ctPageHandler.addCacheturToCacheMenu(elem, gcCode);
+    ctUpdateAddImage();
+}
 
-        ctUpdateAddImage();
+async function onCacheturAddClicked(evt) {
+    evt.stopImmediatePropagation();
+    evt.preventDefault();
+
+    const tur = document.getElementById("cachetur-tur-valg").value;
+    const img = document.getElementsByClassName("cachetur-add-code");
+    
+    const code = img[0]?.dataset.code;
+
+    const data = await ctApiCall("planlagt_add_codes", {
+        tur: tur,
+        code: code,
+    });
+    if (data === "Ok") {
+        _ctCodesAdded.push(code);
+        ctUpdateAddImage(true);
+        document.getElementById("cachetur-tur-antall").html = _ctCodesAdded.length;
+    } else {
+        _ctPageHandler.addCacheToListError(img);
     }
 
-    $(".cachetur-add-code").click(async function (evt) {
-        evt.stopImmediatePropagation();
-        evt.preventDefault();
+    GM_setValue("cachetur_last_action", Date.now());
+}
 
-        let tur = $("#cachetur-tur-valg").val();
-        let img = $(this);
-        let code = img.data("code");
-
-        const data = await ctApiCall("planlagt_add_codes", {
-            tur: tur,
-            code: code,
-        });
-        if (data === "Ok") {
-            _ctCodesAdded.push(code);
-            ctUpdateAddImage(true);
-            $("#cachetur-tur-antall").html(_ctCodesAdded.length);
-        } else {
-            if (_ctPage === "gc_geocache") {
-                //TODO: ctPage
-                img.addClass("cachetur-add-code-error");
-            } else if (_ctPage === "gc_map_new") {
-                //TODO: ctPage
-                img.addClass("cachetur-add-code-error");
-            } else if (_ctPage === "gc_map") {
-                //TODO: ctPage
-                img.html(
-                    '<img src="https://cachetur.no/api/img/cachetur-15-error.png" /> ' +
-                        i18next.t("send")
-                );
-            } else {
-                img.attr(
-                    "src",
-                    "https://cachetur.no/api/img/cachetur-15-error.png"
-                );
-            }
-        }
-
-        GM_setValue("cachetur_last_action", Date.now());
-    });
+function ctAddToCoordInfoLink(elem) {
+    tryAddClassCacheturAdd(elem);
+    const elements = document.getElementsByClassName("cachetur-add-code");
+    for (const elem of elements) {
+        elem.addEventListener("click", onCacheturAddClicked);
+    }
 }
 
 function ctAddTogsakLink(gsak) {
