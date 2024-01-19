@@ -1989,27 +1989,35 @@ function ctCheckAndMarkLayer(layer) {
 }
 
 function ctPGCCheckVgps() {
-    if (_ctPage !== "pgc_vgps") return; //TODO: ctPage
+    if (!(_ctPageHandler instanceof PGC_VirtualGPSPageHandler)) {
+        return;
+    }
 
-    $(".cachetur-pgc-added").remove();
+    const addedElements = document.getElementsByClassName("cachetur-pgc-added");
+    for (const addedElem of addedElements) {
+        addedElem.remove();
+    }
 
-    $("#vgpsTable")
-        .find(".jqgrow.ui-row-ltr.ui-widget-content")
-        .each(function () {
-            let code = $(this)
-                .find("[aria-describedby*='vgpsTable_gccode']")
-                .find("a")
-                .html();
+    const stringToAdd = `
+        <img class="cachetur-pgc-added"
+            src="https://cachetur.no/api/img/cachetur-15-success.png"
+            title="${i18next.t("sent")}">`;
+    const elemToAdd = HTMLStringToElement(stringToAdd);
+
+    const tableElem = document.getElementById("vgpsTable");
+    const filtered = tableElem.getElementsByClassName("jqgrow.ui-row-ltr ui-widget-content");
+    for (const item of filtered) {
+        const codeElements = item.querySelectorAll("[aria-describedby*='vgpsTable_gccode']");
+        for (const elem of codeElements) {
+            const code = elem.querySelector("a")?.innerHTML;
             if (ctCodeAlreadyAdded(code)) {
-                $(this)
-                    .find("[aria-describedby*='vgpsTable_name']")
-                    .prepend(
-                        '<img class="cachetur-pgc-added" src="https://cachetur.no/api/img/cachetur-15-success.png" title="' +
-                            i18next.t("sent") +
-                            '"> '
-                    );
+                const elems = item.querySelectorAll("[aria-describedby*='vgpsTable_name']");
+                for (const elem of elems) {
+                    elem.prepend(elemToAdd);
+                }
             }
-        });
+        }
+    }
 }
 
 async function ctAddSendListButton() {
