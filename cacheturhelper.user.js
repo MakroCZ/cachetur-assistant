@@ -242,6 +242,10 @@ class PageHandler {
     addCacheToListError(img) {
         img.setAttribute("src", "https://cachetur.no/api/img/cachetur-15-error.png")
     }
+
+    initLiveMapListener() {
+        return;
+    }
 }
 
 class GC_CachePageHandler extends PageHandler {
@@ -533,6 +537,27 @@ class PGC_MapPageHandler extends PageHandler {
         await waitForElement("#map");
         ctPGCMapInit();
     }
+
+    onLayerAdd(layer) {
+        setTimeout(ctCheckAndMarkLayer, 50, layer);
+    }
+
+    initLiveMapListener() {
+        if (window.location.pathname.indexOf("/Tools/LiveMap") === -1) {
+            return;
+        }
+    
+        ctPGCMapInit();
+    
+        console.log("Initializing PGC Live Map layeradd-listener");
+    
+        const map = _ctPageHandler.getUnsafeLeafletObject();
+        if (!map) {
+            return;
+        }
+    
+        map.addEventListener("layeradd", this.onLayerAdd);
+    }
 }
 
 class GSAK_PageHandler extends PageHandler {
@@ -557,6 +582,27 @@ class GSAK_PageHandler extends PageHandler {
         await waitForElement("#map");
         ctgsakMapInit();
         ctWatchgsakMap();
+    }
+
+    onLayerAdd(layer) {
+        setTimeout(ctCheckAndMarkLayer, 50, layer);
+    }
+
+    initLiveMapListener() {
+        if (window.location.pathname.indexOf("/html/") === -1) {
+            return;
+        }
+    
+        ctgsakMapInit();
+    
+        console.log("Initializing gsak listener");
+    
+        const map = _ctPageHandler.getUnsafeLeafletObject();
+        if (!map) {
+            return;
+        }
+    
+        map.addEventListener("layeradd", this.onLayerAdd);
     }
 }
 
@@ -976,8 +1022,7 @@ async function ctInit() {
     console.log("Initializing Cacheturassistenten");
     ctCreateTripList();
     await _ctPageHandler.InitAddLinks();
-    ctInitPGCLiveMapListener();
-    ctInitgsakMapListener();
+    _ctPageHandler.initLiveMapListener();
     _initialized = true;
     console.log("Initialization completed");
 }
@@ -1057,45 +1102,6 @@ function ctPrependToHeader(data) {
     if (header) {
         const element = HTMLStringToElement(data);
         header.prepend(element);
-    }
-}
-
-function ctPrependToHeader2(data) {
-    console.log("Injecting cachetur.no in menu");
-    let header;
-    //TODO: ctPage
-    if (_ctPage === "gc_map")
-        (header = $("#ctl00_uxLoginStatus_divSignedIn")),
-            GM_addStyle(
-                "gclh_nav .wrapper { max-width: unset; padding-left: 50px; padding-right: 50px; }"
-            );
-    else if (_ctPage === "gc_map_new")
-        (header = $("#ctl00_uxLoginStatus_divSignedIn")),
-            GM_addStyle(
-                "gclh_nav .wrapper { max-width: unset; padding-left: 50px; padding-right: 50px; }"
-            );
-    else if (_ctPage === "gc_bmlist")
-        (header = $("#ctl00_uxLoginStatus_divSignedIn")),
-            GM_addStyle(
-                "gclh_nav .wrapper { max-width: unset; padding-left: 50px; padding-right: 50px; }"
-            );
-    else if (_ctPage === "gc_geocache")
-        (header = $("#ctl00_uxLoginStatus_divSignedIn")),
-            GM_addStyle(
-                "gclh_nav .wrapper { max-width: unset; padding-left: 50px; padding-right: 50px; }"
-            );
-    else if (_ctPage === "gc_geotour")
-        (header = $("#ctl00_uxLoginStatus_divSignedIn")),
-            GM_addStyle(
-                "gclh_nav .wrapper { max-width: unset; padding-left: 50px; padding-right: 50px; }"
-            );
-    else if (_ctPage === "bobil") header = $(".navbar-right");
-    else if (_ctPage === "gsak") header = $(".leaflet-left");
-    else if (_ctPage === "pgc_map" || _ctPage === "pgc_vgps")
-        header = $("#pgcMainMenu ul.navbar-right");
-
-    if (header) {
-        header.prepend(data);
     }
 }
 
@@ -1666,27 +1672,6 @@ function ctWatchNewMap() {
     document.body.addEventListener("click", onCacheturAddClicked);
 }
 
-//TODO: ctPage
-function ctInitPGCLiveMapListener() {
-    if (
-        _ctPage !== "pgc_map" ||
-        window.location.pathname.indexOf("/Tools/LiveMap") === -1
-    )
-        return;
-
-    ctPGCMapInit();
-
-    console.log("Initializing PGC Live Map layeradd-listener");
-
-    const map = _ctPageHandler.getUnsafeLeafletObject();
-    if (!map) {
-        return;
-    }
-
-    map.on("layeradd", function (layer) {
-        setTimeout(ctPGCCheckAndMarkLayer.bind(null, layer), 50);
-    });
-}
 
 function ctPgcMapBindToChanges() {
     if ($("#map").length) {
@@ -1700,27 +1685,6 @@ function ctPgcMapBindToChanges() {
     }
 }
 
-//TODO: ctPage
-function ctInitgsakMapListener() {
-    if (
-        _ctPage !== "gsak" ||
-        window.location.pathname.indexOf("/html/") === -1
-    )
-        return;
-
-    ctgsakMapInit();
-
-    console.log("Initializing gsak listener");
-
-    const map = _ctPageHandler.getUnsafeLeafletObject();
-    if (!map) {
-        return;
-    }
-
-    map.on("layeradd", function (layer) {
-        setTimeout(ctgsakCheckAndMarkLayer.bind(null, layer), 50);
-    });
-}
 
 function ctgsakMapBindToChanges() {
     if ($("#map").length) {
@@ -2007,24 +1971,11 @@ function ctPGCMarkFound() {
     }
 
     map.eachLayer(function (layer) {
-        ctPGCCheckAndMarkLayer(layer);
+        ctCheckAndMarkLayer(layer);
     });
 }
 
-function ctPGCCheckAndMarkLayer(layer) {
-    let realLayer = layer.layer ? layer.layer : layer;
-
-    if (realLayer instanceof L.Marker && realLayer.label) {
-        let cacheCode = realLayer.label._content.split(" - ")[0];
-        if (ctCodeAlreadyAdded(cacheCode)) {
-            realLayer._icon.classList.add("cachetur-marker-added");
-        } else {
-            realLayer._icon.classList.remove("cachetur-marker-added");
-        }
-    }
-}
-
-function ctgsakCheckAndMarkLayer(layer) {
+function ctCheckAndMarkLayer(layer) {
     let realLayer = layer.layer ? layer.layer : layer;
 
     if (realLayer instanceof L.Marker && realLayer.label) {
