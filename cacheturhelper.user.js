@@ -1757,6 +1757,9 @@ function tryAddClassCacheturAdd(elem) {
 }
 
 async function onCacheturAddClicked(evt) {
+    if (!evt.target.matches(".cachetur-add-code")) {
+        return;
+    }
     evt.stopImmediatePropagation();
     evt.preventDefault();
 
