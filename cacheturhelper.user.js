@@ -1735,14 +1735,14 @@ function ctgsakMapBindToChanges() {
 }
 
 function ctMapBindToDOMChanges() {
-    let codes = $(".code");
+    const codeElems = document.getElementsByClassName("code");
 
-    if (codes.length !== _ctLastCount) {
-        _ctLastCount = codes.length;
-
-        codes.each(function () {
-            ctAddToCoordInfoLink($(this));
-        });
+    if (codeElems.length === _ctLastCount) {
+        return;
+    }
+    _ctLastCount = codeElems.length;
+    for (const codeElem of codeElems) {
+        ctAddToCoordInfoLink(codeElem)
     }
 }
 
