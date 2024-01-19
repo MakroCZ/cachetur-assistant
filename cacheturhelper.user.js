@@ -1595,65 +1595,39 @@ async function ctGetPublicLists_gc_map_new(cache) {
     }
 }
 
+function onGSAKcontentChanged(mutationsList, observer) {
+    if (document.getElementsByClassName("a").length === 0) {
+        return;
+    }
+    const cacheCode = document.getElementsByClassName("a")[0].text;
+
+    if (cacheCode === _ctNewMapActiveCache) {
+        return;
+    }
+    _ctNewMapActiveCache = cacheCode;
+    const elements = document.getElementsByClassName("cachetur-add-code");
+    for (const elem of elements) {
+        elem.dataset.code = cacheCode;
+    }
+    const metadataElems = document.getElementsByClassName("cache-metadata-code");
+    for (const elem of metadataElems) {
+        ctAddToCoordInfoLink(elem);
+    }
+    ctUpdateAddImage();
+}
+
 function ctWatchgsakMap() {
     console.log("start mutationobserver");
-    let targetNode = document.body;
-    let config = {
+    const targetNode = document.body;
+    const config = {
         attributes: true,
         childList: true,
         subtree: true,
     };
-    let callback = function (mutationsList, observer) {
-        if (document.getElementsByClassName("a").length === 0) {
-            return;
-        }
-        let cacheCode = document.getElementsByClassName("a").text;
 
-        if (cacheCode === _ctNewMapActiveCache) {
-            return;
-        }
-        _ctNewMapActiveCache = cacheCode;
-        $(".cachetur-add-code").data("code", cacheCode);
-        ctAddToCoordInfoLink($(".cache-metadata-code"));
-        ctUpdateAddImage();
-    };
-
-    let observer = new MutationObserver(callback);
+    let observer = new MutationObserver(onGSAKcontentChanged);
     observer.observe(targetNode, config);
-
-    $("body").on("click", ".cachetur-add-code", async function (evt) {
-        evt.stopImmediatePropagation();
-        evt.preventDefault();
-
-        let tur = $("#cachetur-tur-valg").val();
-        let img = $(this);
-        let code = img.data("code");
-        const data = await ctApiCall("planlagt_add_codes", {
-            tur: tur,
-            code: code,
-        });
-        if (data === "Ok") {
-            _ctCodesAdded.push(code);
-            ctUpdateAddImage(true);
-            $("#cachetur-tur-antall").html(_ctCodesAdded.length);
-        } else {
-            if (_ctPage === "gc_geocache") {
-                //TODO: ctPage
-                img.addClass("cachetur-add-code-error");
-            } else if (_ctPage === "gc_map") {
-                //TODO: ctPage
-                img.html(
-                    '<img src="https://cachetur.no/api/img/cachetur-15-error.png" /> ' +
-                        i18next.t("send")
-                );
-            } else {
-                img.attr(
-                    "src",
-                    "https://cachetur.no/api/img/cachetur-15-error.png"
-                );
-            }
-        }
-    });
+    document.body.addEventListener("click", onCacheturAddClicked);
 }
 
 function ctWatchNewMap() {
