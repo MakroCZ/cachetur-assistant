@@ -2020,23 +2020,38 @@ function ctPGCCheckVgps() {
     }
 }
 
+
+function onSendBMList(evt) {
+    evt.stopImmediatePropagation();
+    evt.preventDefault();
+
+    ctListSendSelected();
+}
+
 async function ctAddSendListButton() {
     await waitForElement(".multi-select-action-bar");
     console.log("Injecting send to cachetur button");
-    $(".multi-select-action-bar-count-section").after(
-        '<button type="button" class="cachetur-send-bmlist gc-button multi-select-action-bar-button gc-button-has-type gc-button-primary" style="margin-left: 5px;"><img src="https://cachetur.no/api/img/cachetur-15.png" title="' +
-            i18next.t("send") +
-            '" style="cursor: pointer;" /> ' +
-            i18next.t("vgps.sendmarked") +
-            "</button> "
-    );
 
-    $(".cachetur-send-bmlist").click(function (evt) {
-        evt.stopImmediatePropagation();
-        evt.preventDefault();
+    const stringToAdd = `
+        <button type="button"
+            class="cachetur-send-bmlist gc-button multi-select-action-bar-button
+                    gc-button-has-type gc-button-primary"
+            style="margin-left: 5px;">
+                <img src="https://cachetur.no/api/img/cachetur-15.png"
+                    title="${i18next.t("send")}" style="cursor: pointer;" />
+                ${i18next.t("vgps.sendmarked")}
+        </button>`;
+    const elemToAdd = HTMLStringToElement(stringToAdd);
 
-        ctListSendSelected();
-    });
+    const elems = document.getElementsByClassName("multi-select-action-bar-count-section");
+    for (const elem of elems) {
+        elem.after(elemToAdd);
+    }
+
+    const sendElems = document.getElementsByClassName("cachetur-send-bmlist");
+    for (const elem of sendElems) {
+        elem.addEventListener("click", onSendBMList);
+    }
 }
 
 async function ctListSendSelected() {
