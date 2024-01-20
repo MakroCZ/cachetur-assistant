@@ -2055,34 +2055,40 @@ async function ctAddSendListButton() {
 }
 
 async function ctListSendSelected() {
-    let selected = $(
-        '.geocache-table tbody tr input[type="checkbox"]:checked'
-    )
-        .closest("tr")
-        .find(".geocache-code");
-
-    if (selected.length > 0) {
-        let tur = $("#cachetur-tur-valg").val();
-        let codes = [];
-
-        selected.each(function (index) {
-            codes.push($(this).text().split("|")[1].trim());
-        });
-
-        const data = await ctApiCall("planlagt_add_codes", {
-            tur: tur,
-            code: codes,
-        });
-        if (data === "Ok") {
-            ctGetAddedCodes(tur);
-            ctGetShowTripData(tur);
-            alert(i18next.t("vgps.sent"));
-        } else {
-            alert(i18next.t("vgps.error"));
-        }
-
-        GM_setValue("cachetur_last_action", Date.now());
+    const selectedBoxes = document.querySelectorAll('.geocache-table tbody tr input[type="checkbox"]:checked');
+    let selectedElems = [];
+    for (const selected of selectedBoxes) {
+        selectedElems.push(selected.closest("tr").querySelectorAll(".geocache-code"));
     }
+    
+    if (selected.length <= 0) {
+        return;
+    }
+
+    const tur = document.getElementById("cachetur-tur-valg").value;
+    let codes = [];
+
+    for (const item of selectedElems) {
+        codes.push(item.text.split("|")[1].trim());
+    }
+
+    selected.each(function (index) {
+        codes.push($(this).text().split("|")[1].trim());
+    });
+
+    const data = await ctApiCall("planlagt_add_codes", {
+        tur: tur,
+        code: codes,
+    });
+    if (data === "Ok") {
+        ctGetAddedCodes(tur);
+        ctGetShowTripData(tur);
+        alert(i18next.t("vgps.sent"));
+    } else {
+        alert(i18next.t("vgps.error"));
+    }
+
+    GM_setValue("cachetur_last_action", Date.now());
 }
 
 async function ctCheckList() {
