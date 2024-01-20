@@ -284,6 +284,27 @@ class PageHandler {
         img.parentElement.querySelector(".cachetur-set-pri-3").remove();
         img.parentElement.querySelector(".cachetur-found-by").remove();
     }
+
+    addPriorityControl(img, code, priority, style) {
+        const control = HTMLStringToElement(`
+            <img src="https://cachetur.no/api/img/p${priority}.png"
+                    data-code="${code}" data-priority="${priority}"
+                    title="${i18next.t("priority.set" + priority)}"
+                    class="cachetur-set-pri-${priority}"
+                    style="cursor: pointer; ${style}" />`);
+        img.parentElement.prepend(control);
+        return control;
+    }
+
+    setPrioritySuccess(priorityImg, priority) {
+        priorityImg.setAttribute("src",`https://cachetur.no/api/img/p${priority}_success.png`);
+        priorityImg.setAttribute("title", i18next.t("priority.saved"));
+    }
+
+    setPriorityError(priorityImg, priority) {
+        priorityImg.setAttribute("src",`https://cachetur.no/api/img/p${priority}_error.png`);
+        priorityImg.setAttribute("title", i18next.t("priority.error"));
+    }
 }
 
 class GC_CachePageHandler extends PageHandler {
@@ -374,6 +395,29 @@ class GC_CachePageHandler extends PageHandler {
         img.parentElement.parentElement.querySelector(".cachetur-set-pri-2").parentElement.remove();
         img.parentElement.parentElement.querySelector(".cachetur-set-pri-3").parentElement.remove();
         document.getElementById("cachetur-found-by-container").remove();
+    }
+
+    addPriorityControl(img, code, priority, style) {
+        const control = HTMLStringToElement(`
+            <a href class="cachetur-set-pri-${priority}"
+                data-code="${code}" data-priority="${priority}">
+                    ${i18next.t("priority.set" + priority)}
+            </a>`);
+        
+        const li = HTMLStringToElement(`<li></li>`);
+        li.append(control);
+        document.getElementById("cachetur-controls-containter").append(li);
+        return control;
+    }
+
+    setPrioritySuccess(priorityImg, priority) {
+        priorityImg.classList.add(`cachetur-set-pri-${priority}-success`);
+        priorityImg.innerHTML = i18next.t("priority.saved");
+    }
+
+    setPriorityError(priorityImg, priority) {
+        priorityImg.classList.add(`cachetur-set-pri-${priority}-error`);
+        priorityImg.innerHTML = i18next.t("priority.error");
     }
 }
 
@@ -474,6 +518,30 @@ class GC_BrowseMapPageHandler extends PageHandler {
         img.parentElement.querySelector(".cachetur-set-pri-2").remove();
         img.parentElement.querySelector(".cachetur-set-pri-3").remove();
         img.parentElement.querySelector(".cachetur-found-by").remove();
+    }
+
+    addPriorityControl(img, code, priority, style) {
+        const control = HTMLStringToElement(`
+            <a href class="cachetur-set-pri-${priority}"
+                data-code="${code}" data-priority="${priority}">
+                <img src="https://cachetur.no/api/img/p${priority}.png" />
+                ${i18next.t("priority.set" + priority)}
+            </a>`);
+        
+        img.parentElement.append(control);
+        return control;
+    }
+
+    setPrioritySuccess(priorityImg, priority) {
+        priorityImg.innerHTML = `
+            <img src="https://cachetur.no/api/img/p${priority}_success.png" />
+            ${i18next.t("priority.saved")}`;
+    }
+
+    setPriorityError(priorityImg, priority) {
+        priorityImg.innerHTML = `
+            <img src="https://cachetur.no/api/img/p${priority}_error.png" />
+            ${i18next.t("priority.error")}`;
     }
 }
 
@@ -592,6 +660,35 @@ class GC_SearchMapPageHandler extends PageHandler {
         img.parentElement.parentElement.querySelector(".cachetur-set-pri-1").parentElement.remove();
         img.parentElement.parentElement.querySelector(".cachetur-set-pri-2").parentElement.remove();
         img.parentElement.parentElement.querySelector(".cachetur-set-pri-3").parentElement.remove();
+    }
+
+    addPriorityControl(img, code, priority, style) {
+        const control = HTMLStringToElement(`
+            <a href class="cachetur-set-pri-${priority}"
+                data-code="${code}" data-priority="${priority}">
+                <img src="https://cachetur.no/api/img/p${priority}.png" />
+                ${i18next.t("priority.set" + priority)} +
+            </a>`);
+        
+        const li = HTMLStringToElement(`<li></li>`);
+        const elems = document.querySelectorAll(".cachetur-add-comment");
+        for (const elem of elems) {
+            elem.after(li);
+        }
+
+        li.append(control);
+        document.getElementById("cachetur-controls-containter").append(li);
+        return control;
+    }
+
+    setPrioritySuccess(priorityImg, priority) {
+        priorityImg.classList.add(`cachetur-set-pri-${priority}-success`);
+        priorityImg.innerHTML = i18next.t("priority.saved");
+    }
+
+    setPriorityError(priorityImg, priority) {
+        priorityImg.classList.add(`cachetur-set-pri-${priority}-error`);
+        priorityImg.innerHTML = i18next.t("priority.error");
     }
 }
 
@@ -2334,145 +2431,34 @@ function ctUpdateAddImage(codeAddedTo) {
     }
 }
 
-//TODO: ctPage a lot
-function ctCreatePriorityControl(img, code, priority) {
-    let control;
-    let style = "padding-right: 5px;";
+async function onPriorityClicked(evt) {
+    evt.stopImmediatePropagation();
+    evt.preventDefault();
 
+    const tur = document.getElementById("cachetur-tur-valg").value;
+    const priorityImg = evt.target;
+    const priorityCode = priorityImg.dataset.code;
+    const priority = priorityImg.querySelector('[data-priority]').dataset.priority;
+
+    const data = await ctApiCall("planlagt_set_code_priority", {
+        tur: tur,
+        code: priorityCode,
+        priority: priority,
+    });
+    if (data === "Ok") {
+        _ctPageHandler.setPrioritySuccess(priorityImg, priority);
+    }
+    GM_setValue("cachetur_last_action", Date.now());
+}
+
+function ctCreatePriorityControl(img, code, priority) {
+    let style = "padding-right: 5px;";
     if (_ctPage === "pgc_map") {
         let left = 60 + priority * 20;
         style = "left: " + left + "px";
     }
-
-    if (_ctPage === "gc_geocache") {
-        let li = $("<li></li>");
-        control = $(
-            '<a href class="cachetur-set-pri-' +
-                priority +
-                '" data-code="' +
-                code +
-                '">' +
-                i18next.t("priority.set" + priority) +
-                "</a>"
-        );
-        li.append(control);
-        $("#cachetur-controls-container").append(li);
-    } else if (_ctPage === "gc_map_new") {
-        let li = $("<li></li>").insertAfter(".cachetur-add-comment");
-        control = $(
-            '<a href class="cachetur-set-pri-' +
-                priority +
-                '" data-code="' +
-                code +
-                '"><img src="https://cachetur.no/api/img/p' +
-                priority +
-                '.png" /> ' +
-                i18next.t("priority.set" + priority) +
-                "</a>"
-        );
-        li.append(control);
-        $("#cachetur-controls-container").append(li);
-    } else if (_ctPage === "gc_map") {
-        control = $(
-            '<a href class="cachetur-set-pri-' +
-                priority +
-                '" data-code="' +
-                code +
-                '"><img src="https://cachetur.no/api/img/p' +
-                priority +
-                '.png" /> ' +
-                i18next.t("priority.set" + priority) +
-                "</a>"
-        );
-        img.parent().append(control);
-    } else {
-        control = $(
-            ' <img src="https://cachetur.no/api/img/p' +
-                priority +
-                '.png" data-code="' +
-                code +
-                '" title="' +
-                i18next.t("priority.set" + priority) +
-                '" class="cachetur-set-pri-' +
-                priority +
-                '" style="cursor: pointer; ' +
-                style +
-                '" /> '
-        );
-        img.parent().prepend(control);
-    }
-
-    control.click(async function (evt) {
-        evt.stopImmediatePropagation();
-        evt.preventDefault();
-
-        let tur = $("#cachetur-tur-valg").val();
-        let priorityImg = $(this);
-        let priorityCode = priorityImg.data("code");
-
-        const data = await ctApiCall("planlagt_set_code_priority", {
-            tur: tur,
-            code: priorityCode,
-            priority: priority,
-        });
-        if (data === "Ok") {
-            if (_ctPage === "gc_geocache") {
-                priorityImg.addClass(
-                    "cachetur-set-pri-" + priority + "-success"
-                );
-                priorityImg.html(i18next.t("priority.saved"));
-            } else if (_ctPage === "gc_map_new") {
-                priorityImg.addClass(
-                    "cachetur-set-pri-" + priority + "-success"
-                );
-                priorityImg.html(i18next.t("priority.saved"));
-            } else if (_ctPage === "gc_map") {
-                priorityImg.html(
-                    '<img src="https://cachetur.no/api/img/p' +
-                        priority +
-                        '_success.png" /> ' +
-                        i18next.t("priority.saved")
-                );
-            } else {
-                priorityImg.attr(
-                    "src",
-                    "https://cachetur.no/api/img/p" +
-                        priority +
-                        "_success.png"
-                );
-                priorityImg.attr("title", i18next.t("priority.saved"));
-            }
-        } else {
-            if (_ctPage === "gc_geocache") {
-                priorityImg.addClass(
-                    "cachetur-set-pri-" + priority + "-error"
-                );
-                priorityImg.html(i18next.t("priority.error"));
-            } else if (_ctPage === "gc_map_new") {
-                priorityImg.addClass(
-                    "cachetur-set-pri-" + priority + "-error"
-                );
-                priorityImg.html(i18next.t("priority.error"));
-            } else if (_ctPage === "gc_map") {
-                priorityImg.html(
-                    '<img src="https://cachetur.no/api/img/p' +
-                        priority +
-                        '_error.png" /> ' +
-                        i18next.t("priority.error")
-                );
-            } else {
-                priorityImg.attr(
-                    "src",
-                    "https://cachetur.no/api/img/p" +
-                        priority +
-                        "_error.png"
-                );
-                priorityImg.attr("title", i18next.t("priority.error"));
-            }
-        }
-
-        GM_setValue("cachetur_last_action", Date.now());
-    });
+    const control = _ctPageHandler.addPriorityControl(img, code, priority, style);
+    control.addEventListener("click", onPriorityClicked);
 }
 
 function ctCodeAlreadyAdded(code) {
