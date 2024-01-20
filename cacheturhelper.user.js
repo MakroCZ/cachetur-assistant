@@ -305,6 +305,15 @@ class PageHandler {
         priorityImg.setAttribute("src",`https://cachetur.no/api/img/p${priority}_error.png`);
         priorityImg.setAttribute("title", i18next.t("priority.error"));
     }
+
+    setIconForCode(imgElems, foundBy, code, style) {
+        const elem = HTMLStringToElement(`
+            <img class="cachetur-found-by" data-code="${code}"
+                src="https://cachetur.no/api/img/attfind.png"
+                title="${i18next.t("foundby")} ${foundBy}"
+                style="${style}" />`);
+        imgElems.parentElement.prepend(elem);
+    }
 }
 
 class GC_CachePageHandler extends PageHandler {
@@ -418,6 +427,24 @@ class GC_CachePageHandler extends PageHandler {
     setPriorityError(priorityImg, priority) {
         priorityImg.classList.add(`cachetur-set-pri-${priority}-error`);
         priorityImg.innerHTML = i18next.t("priority.error");
+    }
+
+    setIconForCode(imgElems, foundBy, code, style) {
+        document.getElementById("cachetur-found-by-container").remove();
+        const elem = HTMLStringToElement(`
+            <ul id="cachetur-found-by-container">
+                <li>
+                    <b>
+                        <img src="https://cachetur.no/api/img/attfind.png" />
+                        ${i18next.t("foundby")}
+                    </b>
+                </li>
+                <li>
+                    ${foundBy}
+                </li>
+            </ul>`);
+        
+        document.getElementById("cachetur-controls-container").parentElement.append(elem);
     }
 }
 
@@ -542,6 +569,23 @@ class GC_BrowseMapPageHandler extends PageHandler {
         priorityImg.innerHTML = `
             <img src="https://cachetur.no/api/img/p${priority}_error.png" />
             ${i18next.t("priority.error")}`;
+    }
+
+    setIconForCode(imgElems, foundBy, code, style) {
+        const mapItem = imgElems.closest(".map-item");
+        const elems = mapItem.querySelectorAll(".cachetur-found-by-container");
+        for (const elem of elems) {
+            elem.remove();
+        }
+        const toAdd = HTMLStringToElement(`
+            <div class="links Clear cachetur-found-by-container">
+                <b>
+                    <img src="https://cachetur.no/api/img/attfind.png" />
+                    ${i18next.t("foundby")} +
+                </b>
+                ${foundBy}
+            </div>`);
+        mapItem.append(toAdd);
     }
 }
 
@@ -689,6 +733,23 @@ class GC_SearchMapPageHandler extends PageHandler {
     setPriorityError(priorityImg, priority) {
         priorityImg.classList.add(`cachetur-set-pri-${priority}-error`);
         priorityImg.innerHTML = i18next.t("priority.error");
+    }
+
+    setIconForCode(imgElems, foundBy, code, style) {
+        document.getElementById("cachetur-found-by-container").remove();
+        const toAdd = HTMLStringToElement(`
+            <ul id="cachetur-found-by-container">
+                <li>
+                    <b>
+                        <img src="https://cachetur.no/api/img/attfind.png" />
+                        ${i18next.t("foundby")}
+                    </b>
+                </li>
+                <li>
+                    ${foundBy}
+                </li>
+            </ul>`);
+        document.getElementById("cachetur-controls-container").parentElement.append(toAdd);
     }
 }
 
@@ -2466,73 +2527,28 @@ function ctCodeAlreadyAdded(code) {
 }
 
 async function ctSetIconForCode(code) {
-    let id = $("#cachetur-tur-valg").val();
-
+    const id = document.getElementById("cachetur-tur-valg").value;
     const foundBy = await ctApiCall("planlagt_check_find", {
         tur: id,
         code: code,
     });
-    if (foundBy === "") return "";
-
-    let img = $(".cachetur-add-code[data-code='" + code + "']");
-    if (img.length <= 0) return;
-
-    if ($(".cachetur-found-by[data-code='" + code + "']").length === 0) {
-        let style = "";
-        if (_ctPage === "pgc_map") {
-            //TODO: ctPage
-            style = "left: 40px;";
-        }
-        if (_ctPage === "gc_geocache") {
-            //TODO: ctPage
-            $("#cachetur-found-by-container").remove();
-            $("#cachetur-controls-container")
-                .parent()
-                .append(
-                    '<ul id="cachetur-found-by-container"><li><b><img src="https://cachetur.no/api/img/attfind.png" /> ' +
-                        i18next.t("foundby") +
-                        "</b></li><li>" +
-                        foundBy +
-                        "</li></ul>"
-                );
-        } else if (_ctPage === "gc_map_new") {
-            //TODO: ctPage
-            $("#cachetur-found-by-container").remove();
-            $("#cachetur-controls-container")
-                .parent()
-                .append(
-                    '<ul id="cachetur-found-by-container"><li><b><img src="https://cachetur.no/api/img/attfind.png" /> ' +
-                        i18next.t("foundby") +
-                        "</b></li><li>" +
-                        foundBy +
-                        "</li></ul>"
-                );
-        } else if (_ctPage === "gc_map") {
-            //TODO: ctPage
-            img.closest(".map-item")
-                .find(".cachetur-found-by-container")
-                .remove();
-            img.closest(".map-item").append(
-                '<div class="links Clear cachetur-found-by-container"><b><img src="https://cachetur.no/api/img/attfind.png" /> ' +
-                    i18next.t("foundby") +
-                    "</b> " +
-                    foundBy +
-                    "</div>"
-            );
-        } else {
-            img.parent().prepend(
-                ' <img class="cachetur-found-by" data-code="' +
-                    code +
-                    '" src="https://cachetur.no/api/img/attfind.png" title="' +
-                    i18next.t("foundby") +
-                    " " +
-                    foundBy +
-                    '" style="' +
-                    style +
-                    '" /> '
-            );
-        }
+    if (foundBy === "") {
+        return;
     }
+    const imgElems = document.querySelectorAll(`.cachetur-add-code[data-code='${code}']`);
+    if (imgElems.length <= 0) {
+        return;
+    }
+    if (document.querySelectorAll(`.cachetur-found-by[data-code='${code}']`).length > 0) {
+        return;
+    }
+        
+    let style = "";
+    if (_ctPageHandler instanceof PGC_MapPageHandler) {
+        style = "left: 40px;";
+    }
+
+    _ctPageHandler.setIconForCode(imgElems, foundBy, code, style);
 }
 // Get url parameter.
 function getURLParam(key) {
