@@ -2072,10 +2072,6 @@ async function ctListSendSelected() {
         codes.push(item.text.split("|")[1].trim());
     }
 
-    selected.each(function (index) {
-        codes.push($(this).text().split("|")[1].trim());
-    });
-
     const data = await ctApiCall("planlagt_add_codes", {
         tur: tur,
         code: codes,
@@ -2092,28 +2088,33 @@ async function ctListSendSelected() {
 }
 
 async function ctCheckList() {
-    if (_ctPage !== "gc_bmlist") return; //TODO: ctPage
+    if (!(_ctPageHandler instanceof GC_BookmarkListPageHandler)) {
+        return;
+    }
 
     await waitForElement(".geocache-table");
-    $(".cachetur-bmlist-added").remove();
+    const addedElems = document.getElementsByClassName("cachetur-bmlist-add");
+    for (const elem of addedElems) {
+        elem.remove();
+    }
 
-    $("table.geocache-table")
-        .find("tr")
-        .each(function () {
-            let codeInfo = $(this).find(".geocache-code").text().split("|");
-            if (codeInfo.length > 1) {
-                let code = codeInfo[1].trim();
-                if (ctCodeAlreadyAdded(code)) {
-                    $(this)
-                        .find(".geocache-code")
-                        .prepend(
-                            '<img class="cachetur-bmlist-added" src="https://cachetur.no/api/img/cachetur-15-success.png" title="' +
-                                i18next.t("sent") +
-                                '"> '
-                        );
-                }
-            }
-        });
+    const cacheTableLines = document.querySelector("table.geocache-table")?.querySelectorAll("tr");
+    for (const line in cacheTableLines) {
+        const codeElem = line.querySelector(".geocache-code");
+        const codeInfo = codeElem.textContent.split("|");
+        if (codeInfo.length <=1) {
+            continue;
+        }
+
+        const code = codeInfo[1].trim();
+        if (ctCodeAlreadyAdded(code)) {
+            const elemToAdd = HTMLStringToElement(`
+                <img class="cachetur-bmlist-added"
+                    src="https://cachetur.no/api/img/cachetur-15-success.png"
+                    title="${i18next.t("sent")}">`);
+            codeElem.prepend(elemToAdd);
+        }
+    }
 }
 
 //TODO: ctPage a lot
