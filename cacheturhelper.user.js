@@ -2550,18 +2550,22 @@ async function ctSetIconForCode(code) {
 
     _ctPageHandler.setIconForCode(imgElems, foundBy, code, style);
 }
+
 // Get url parameter.
 function getURLParam(key) {
-    var query = window.location.search.substring(1);
-    var pairs = query.split("&");
-    for (let i = 0; i < pairs.length; i++) {
-        var pair = pairs[i].split("=");
-        if (pair[0] == key) {
-            if (pair[1].length > 0) return pair[1];
+    const query = window.location.search.substring(1);
+    const pairs = query.split("&");
+    for (const pair of pairs) {
+        const pairData = pair.split("=");
+        if (pairData[0] == key) {
+            if (pairData[1].length > 0) {
+                return pair[1];
+            }
         }
     }
     return undefined;
 }
+
 function ctFixNewGcMapIssues() {
     if (window.location.href.indexOf("bm=") > -1) return;
 
