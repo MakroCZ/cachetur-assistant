@@ -84,6 +84,24 @@ function HTMLStringToElement(string) {
 
 let _ctPageHandler = null;
 
+let _mapInfo = {
+    latHighPrev : false,
+    latLowPrev : false,
+    lngHighPrev : false,
+    lngLowPrev : false,
+    firstRun : true
+}
+const ONE_MINUTE_MS = 60 * 1000;
+
+// trailing debounce, thanks zspec
+function debounce(func, wait) {
+    let timeoutId;
+    return function debounced(...args) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(func.bind(this), wait, ...args);
+    };
+  }
+
 // TODO: Move to external file downloaded when starting, as random gorgon
 const ambassadorNames = ["Heltinnen", "DougyB", "cghove", "Korsgat", "Don Rodolphos", "platoaddict",
                          "rragan", "twlare", "GorgonVaktmester", "Olet", "footie77", "HikingSeal", 
@@ -2566,350 +2584,118 @@ function getURLParam(key) {
     return undefined;
 }
 
+
+function countdown(waitTime) {
+    if (waitTime < 1) {
+        document.getElementById("cta-waiting-msg").remove();
+        const loadingContainer = document.querySelector("div.loading-container");
+        loadingContainer.style.display = "none";
+        loadingContainer.classList.remove("show");
+        document.querySelector("body").classList.remove("cta-waiting-msg");
+    } else {
+        const loadingContainer = document.querySelector("div.loading-container");
+        loadingContainer.style.display = "flex";
+        loadingContainer.classList.add("show");
+        document.getElementById("cta-waiting-msg").remove();
+
+        const elemToAdd = HTMLStringToElement(`
+            <span id="cta-waiting-msg" role="alert" aria-live="assertive">
+                ${i18next.t("refresh.tomany ")} ${waitTime} ${i18next.t(" refresh.s")}
+            </span>`);
+        document.querySelector(".loading-display").appendChild(elemToAdd);
+        
+        setTimeout(function () {
+            countdown(--waitTime);
+        }, 1000);
+    }
+}
+
+
+function autoMapRefresh() {
+    if (document.querySelectorAll(".loading-container.show").length > 0) {
+        return;
+    }
+
+    const pxHeight = window.innerHeight;
+    const pxWidth = window.innerWidth;
+    const lat = parseFloat(getURLParam("lat"));
+    const lng = parseFloat(getURLParam("lng"));
+    const zoom = parseInt(getURLParam("zoom"));
+    
+    const metersPerPx = (156543.03392 * Math.cos((lat * Math.PI) / 180)) / Math.pow(2, zoom);
+    
+    const latMeterDistance = metersPerPx * pxHeight;
+    const lngMeterDistance = metersPerPx * pxWidth;
+    const latHalfDezDistance = latMeterDistance / 1850 / 60 / 2;
+    const lngHalfDezDistance = lngMeterDistance / (1850 * Math.cos((lat * Math.PI) / 180)) / 60 / 2;
+    
+    const latHigh = (lat + latHalfDezDistance).toFixed(4);
+    const latLow = (lat - latHalfDezDistance).toFixed(4);
+    const lngHigh = (lng + lngHalfDezDistance).toFixed(4);
+    const lngLow = (lng - lngHalfDezDistance).toFixed(4);
+    if (_mapInfo.firstRun || latHigh > _mapInfo.latHighPrev ||
+        latLow < _mapInfo.latLowPrev || lngHigh > _mapInfo.lngHighPrev ||
+        lngLow < _mapInfo.lngLowPrev
+    ) {
+        _mapInfo.latHighPrev = latHigh;
+        _mapInfo.latLowPrev = latLow;
+        _mapInfo.lngHighPrev = lngHigh;
+        _mapInfo.lngLowPrev = lngLow;
+        if (!_mapInfo.firstRun) {
+            let times = JSON.parse(GM_getValue("search_this_area_times", "[]"));
+            if (times.length < 9) {
+                document.getElementById("clear-map-control").click();
+                times.push(Date.now());
+                GM_setValue("search_this_area_times", JSON.stringify(times));
+            } else {
+                const t = Date.now();
+                // check 1min limit
+                const timeFromOldestSearch = t - times[0];
+                if (timeFromOldestSearch > ONE_MINUTE_MS) {
+                    document.getElementById("clear-map-control").click();
+                    times.splice(0, 1);
+                    times.push(t);
+                    GM_setValue("search_this_area_times", JSON.stringify(times));
+                } else if (document.querySelectorAll("body.cta-waiting-msg").length === 0) {
+                    document.querySelector("body").classList.add("cta-waiting-msg");
+                    const wait = Math.ceil( (ONE_MINUTE_MS - timeFromOldestSearch) / 1000 );
+                    countdown(wait);
+                }
+            }
+        }
+        _mapInfo.firstRun = false;
+    }
+}
+
+function searchThisArea(waitCount) {
+    if (document.querySelector(".leaflet-gl-layer.mapboxgl-map") || document.querySelector("div.gm-style")) {
+        // Leaflet or GM
+        if (_mapInfo.firstRun &&
+                !document.querySelector(".loading-container.show") &&
+                !document.querySelector("li.active svg.my-lists-toggle-icon") &&
+                document.getElementById("#clear-map-control")) {
+            setTimeout(autoMapRefresh, 400);
+        }
+    } else {
+        waitCount++;
+        if (waitCount <= 200) {
+            setTimeout(function () {
+                searchThisArea(waitCount);
+            }, 50);
+        }
+    }
+}
+
 function ctFixNewGcMapIssues() {
-    if (window.location.href.indexOf("bm=") > -1) return;
-
-    unsafeWindow.cacheturGCMap.on("zoomend", function () {
-        var latHighG = false;
-        var latLowG = false;
-        var lngHighG = false;
-        var lngLowG = false;
-        var firstRun = true;
-        const ONE_MINUTE_MS = 60 * 1000;
-        function searchThisArea(waitCount) {
-            if (
-                $(".leaflet-gl-layer.mapboxgl-map")[0] ||
-                $("div.gm-style")[0]
-            ) {
-                // Leaflet or GM
-                if (
-                    !$(".loading-container.show")[0] &&
-                    !$("li.active svg.my-lists-toggle-icon")[0] &&
-                    $("#clear-map-control")[0] &&
-                    firstRun
-                ) {
-                    setTimeout(function () {
-                        if ($(".loading-container.show")[0]) return;
-                        var pxHeight = window.innerHeight;
-                        var pxWidth = window.innerWidth;
-                        var lat = parseFloat(getURLParam("lat"));
-                        var lng = parseFloat(getURLParam("lng"));
-                        var zoom = parseInt(getURLParam("zoom"));
-                        var metersPerPx =
-                            (156543.03392 *
-                                Math.cos((lat * Math.PI) / 180)) /
-                            Math.pow(2, zoom);
-                        var latMeterDistance = metersPerPx * pxHeight;
-                        var lngMeterDistance = metersPerPx * pxWidth;
-                        var latHalfDezDistance =
-                            latMeterDistance / 1850 / 60 / 2;
-                        var lngHalfDezDistance =
-                            lngMeterDistance /
-                            (1850 * Math.cos((lat * Math.PI) / 180)) /
-                            60 /
-                            2;
-                        var latHigh = (lat + latHalfDezDistance).toFixed(4);
-                        var latLow = (lat - latHalfDezDistance).toFixed(4);
-                        var lngHigh = (lng + lngHalfDezDistance).toFixed(4);
-                        var lngLow = (lng - lngHalfDezDistance).toFixed(4);
-                        if (
-                            latHighG == false ||
-                            latHigh > latHighG ||
-                            latLow < latLowG ||
-                            lngHigh > lngHighG ||
-                            lngLow < lngLowG
-                        ) {
-                            latHighG = latHigh;
-                            latLowG = latLow;
-                            lngHighG = lngHigh;
-                            lngLowG = lngLow;
-                            if (!firstRun) {
-                                let times = JSON.parse(
-                                    GM_getValue(
-                                        "search_this_area_times",
-                                        "[]"
-                                    )
-                                );
-                                if (times.length < 9) {
-                                    $("#clear-map-control").click().click();
-                                    times.push(Date.now());
-                                    GM_setValue(
-                                        "search_this_area_times",
-                                        JSON.stringify(times)
-                                    );
-                                } else {
-                                    let t = Date.now();
-                                    // check 1min limit
-                                    if (t - times[0] > ONE_MINUTE_MS) {
-                                        $("#clear-map-control")
-                                            .click()
-                                            .click();
-                                        times.splice(0, 1);
-                                        times.push(t);
-                                        GM_setValue(
-                                            "search_this_area_times",
-                                            JSON.stringify(times)
-                                        );
-                                    } else {
-                                        if (
-                                            $("body.cta-waiting-msg")
-                                                .length === 0
-                                        ) {
-                                            $("body").addClass(
-                                                "cta-waiting-msg"
-                                            );
-                                            var wait = Math.ceil(
-                                                (ONE_MINUTE_MS -
-                                                    (t - times[0])) /
-                                                    1000
-                                            );
-                                            function countdown(waitTime) {
-                                                if (waitTime < 1) {
-                                                    $(
-                                                        "#cta-waiting-msg"
-                                                    ).remove();
-                                                    $(
-                                                        "div.loading-container"
-                                                    )
-                                                        .css(
-                                                            "display",
-                                                            "none"
-                                                        )
-                                                        .removeClass(
-                                                            "show"
-                                                        );
-                                                    $("body").removeClass(
-                                                        "cta-waiting-msg"
-                                                    );
-                                                } else {
-                                                    $(
-                                                        "div.loading-container"
-                                                    )
-                                                        .css(
-                                                            "display",
-                                                            "flex"
-                                                        )
-                                                        .addClass("show");
-                                                    $(
-                                                        "#cta-waiting-msg"
-                                                    ).remove();
-                                                    $(
-                                                        ".loading-display"
-                                                    ).append(
-                                                        '<span id="cta-waiting-msg" role="alert" aria-live="assertive">' +
-                                                            i18next.t(
-                                                                "refresh.tomany "
-                                                            ) +
-                                                            " " +
-                                                            +waitTime +
-                                                            " " +
-                                                            i18next.t(
-                                                                " refresh.s"
-                                                            ) +
-                                                            "</span>"
-                                                    );
-
-                                                    setTimeout(function () {
-                                                        countdown(
-                                                            --waitTime
-                                                        );
-                                                    }, 1000);
-                                                }
-                                            }
-                                            countdown(wait);
-                                        }
-                                    }
-                                }
-                            }
-                            firstRun = false;
-                        }
-                    }, 400);
-                }
-            } else {
-                waitCount++;
-                if (waitCount <= 200)
-                    setTimeout(function () {
-                        searchThisArea(waitCount);
-                    }, 50);
-            }
-        }
-        window.history.pushState = new Proxy(window.history.pushState, {
-            apply: (target, thisArg, argArray) => {
-                searchThisArea(0);
-                return target.apply(thisArg, argArray);
-            },
-        });
-    });
-
-    unsafeWindow.cacheturGCMap.on("dragend", function () {
-        var latHighG = false;
-        var latLowG = false;
-        var lngHighG = false;
-        var lngLowG = false;
-        var firstRun = true;
-        const ONE_MINUTE_MS = 60 * 1000;
-        function searchThisArea(waitCount) {
-            if (
-                $(".leaflet-gl-layer.mapboxgl-map")[0] ||
-                $("div.gm-style")[0]
-            ) {
-                // Leaflet or GM
-                if (
-                    !$(".loading-container.show")[0] &&
-                    !$("li.active svg.my-lists-toggle-icon")[0] &&
-                    ($("#clear-map-control")[0] || firstRun)
-                ) {
-                    setTimeout(function () {
-                        if ($(".loading-container.show")[0]) return;
-                        var pxHeight = window.innerHeight;
-                        var pxWidth = window.innerWidth;
-                        var lat = parseFloat(getURLParam("lat"));
-                        var lng = parseFloat(getURLParam("lng"));
-                        var zoom = parseInt(getURLParam("zoom"));
-                        var metersPerPx =
-                            (156543.03392 *
-                                Math.cos((lat * Math.PI) / 180)) /
-                            Math.pow(2, zoom);
-                        var latMeterDistance = metersPerPx * pxHeight;
-                        var lngMeterDistance = metersPerPx * pxWidth;
-                        var latHalfDezDistance =
-                            latMeterDistance / 1850 / 60 / 2;
-                        var lngHalfDezDistance =
-                            lngMeterDistance /
-                            (1850 * Math.cos((lat * Math.PI) / 180)) /
-                            60 /
-                            2;
-                        var latHigh = (lat + latHalfDezDistance).toFixed(4);
-                        var latLow = (lat - latHalfDezDistance).toFixed(4);
-                        var lngHigh = (lng + lngHalfDezDistance).toFixed(4);
-                        var lngLow = (lng - lngHalfDezDistance).toFixed(4);
-                        if (
-                            latHighG == false ||
-                            latHigh > latHighG ||
-                            latLow < latLowG ||
-                            lngHigh > lngHighG ||
-                            lngLow < lngLowG
-                        ) {
-                            latHighG = latHigh;
-                            latLowG = latLow;
-                            lngHighG = lngHigh;
-                            lngLowG = lngLow;
-
-                            if (!firstRun) {
-                                let times = JSON.parse(
-                                    GM_getValue(
-                                        "search_this_area_times",
-                                        "[]"
-                                    )
-                                );
-                                if (times.length < 9) {
-                                    $("#clear-map-control").click().click();
-                                    times.push(Date.now());
-                                    GM_setValue(
-                                        "search_this_area_times",
-                                        JSON.stringify(times)
-                                    );
-                                } else {
-                                    let t = Date.now();
-                                    if (t - times[0] > ONE_MINUTE_MS) {
-                                        $("#clear-map-control")
-                                            .click()
-                                            .click();
-                                        times.splice(0, 1);
-                                        times.push(t);
-                                        GM_setValue(
-                                            "search_this_area_times",
-                                            JSON.stringify(times)
-                                        );
-                                    } else {
-                                        if (
-                                            $("body.cta-waiting-msg")
-                                                .length === 0
-                                        ) {
-                                            $("body").addClass(
-                                                "cta-waiting-msg"
-                                            );
-                                            var wait = Math.ceil(
-                                                (ONE_MINUTE_MS -
-                                                    (t - times[0])) /
-                                                    1000
-                                            );
-                                            function countdown(waitTime) {
-                                                if (waitTime < 1) {
-                                                    $(
-                                                        "#cta-waiting-msg"
-                                                    ).remove();
-                                                    $(
-                                                        "div.loading-container"
-                                                    )
-                                                        .css(
-                                                            "display",
-                                                            "none"
-                                                        )
-                                                        .removeClass(
-                                                            "show"
-                                                        );
-                                                    $("body").removeClass(
-                                                        "cta-waiting-msg"
-                                                    );
-                                                } else {
-                                                    $(
-                                                        "div.loading-container"
-                                                    )
-                                                        .css(
-                                                            "display",
-                                                            "flex"
-                                                        )
-                                                        .addClass("show");
-                                                    $(
-                                                        "#cta-waiting-msg"
-                                                    ).remove();
-                                                    $(
-                                                        ".loading-display"
-                                                    ).append(
-                                                        '<span id="cta-waiting-msg" role="alert" aria-live="assertive">' +
-                                                            i18next.t(
-                                                                "refresh.tomany"
-                                                            ) +
-                                                            " " +
-                                                            waitTime +
-                                                            " " +
-                                                            i18next.t(
-                                                                "refresh.s"
-                                                            ) +
-                                                            "</span>"
-                                                    );
-
-                                                    setTimeout(function () {
-                                                        countdown(
-                                                            --waitTime
-                                                        );
-                                                    }, 1000);
-                                                }
-                                            }
-                                            countdown(wait);
-                                        }
-                                    }
-                                }
-                            }
-                            firstRun = false;
-                        }
-                    }, 400);
-                }
-            } else {
-                waitCount++;
-                if (waitCount <= 200)
-                    setTimeout(function () {
-                        searchThisArea(waitCount);
-                    }, 50);
-            }
-        }
-        window.history.pushState = new Proxy(window.history.pushState, {
-            apply: (target, thisArg, argArray) => {
-                searchThisArea(0);
-                return target.apply(thisArg, argArray);
-            },
-        });
+    if (window.location.href.indexOf("bm=") > -1) {
+        return;
+    }
+    
+    window.history.pushState = new Proxy(window.history.pushState, {
+        apply: (target, thisArg, argArray) => {
+            searchThisArea(0);
+            return target.apply(thisArg, argArray);
+        },
     });
 }
 
