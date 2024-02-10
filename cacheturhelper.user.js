@@ -332,6 +332,14 @@ class PageHandler {
                 style="${style}" />`);
         imgElems.parentElement.prepend(elem);
     }
+
+    getCurrentCacheDT() {
+        throw Error("Not implemented");
+    }
+
+    addDTstat(nbDT) {
+        throw Error("Not implemented");
+    }
 }
 
 class GC_CachePageHandler extends PageHandler {
@@ -463,6 +471,42 @@ class GC_CachePageHandler extends PageHandler {
             </ul>`);
         
         document.getElementById("cachetur-controls-container").parentElement.append(elem);
+    }
+
+    getCurrentCacheDT() {
+        const DHTML = document.getElementById("ctl00_ContentBody_uxLegendScale").innerHTML;
+        let D = DHTML.substring(DHTML.indexOf("stars/stars") + 11, DHTML.indexOf(".gif"));
+        D.replace("_", ".");
+
+        const THTML = document.getElementById("ctl00_ContentBody_Localize12").innerHTML;
+        let T = THTML.substring(THTML.indexOf("stars/stars") + 11, THTML.indexOf(".gif"));
+        T.replace("_", ".");
+
+        return {"D": D, "T": T};
+    }
+
+    addDTstat(nbDT) {
+        if (nbDT === "0") {
+            document.getElementById("ctl00_ContentBody_diffTerr").before(
+                HTMLStringToElement(`
+                    <div>
+                        <strong>
+                            ${i18next.t("dt.new")}
+                        </strong>
+                        </p>
+                    </div>
+                    <br>`));
+
+            document.getElementById("ctl00_ContentBody_uxLegendScale").style.background = "lightgreen";
+            document.getElementById("ctl00_ContentBody_Localize12").style.background = "lightgreen";
+        } else {
+            document.getElementById("ctl00_ContentBody_diffTerr").before(
+                HTMLStringToElement(`
+                    <div>
+                        ${i18next.t("dt.you")} ${nbDT} ${i18next.t("dt.caches")}
+                    </div>
+                    <br>`));
+        }
     }
 }
 
@@ -604,6 +648,35 @@ class GC_BrowseMapPageHandler extends PageHandler {
                 ${foundBy}
             </div>`);
         mapItem.append(toAdd);
+    }
+
+    getCurrentCacheDT() {
+        const DTElems = document.querySelectorAll("DD");
+        const DHTML = DTElems[1].innerHTML;
+        let D = DHTML.substring(DHTML.indexOf("stars/stars") + 11, DHTML.indexOf(".gif"));
+        D.replace("_", ".");
+
+        const THTML = DTElems[4].innerHTML;
+        let T = THTML.substring(THTML.indexOf("stars/stars") + 11, THTML.indexOf(".gif"));
+        T.replace("_", ".");
+
+        return {"D": D, "T": T};
+    }
+
+    addDTstat(nbDT) {
+        if (nbDT === "0") {
+            document.getElementById("gmCacheInfo").append(
+                HTMLStringToElement(`
+                    <div>
+                        ${i18next.t("dt.new")}
+                    </div>`));
+        } else {
+            document.getElementById("gmCacheInfo").append(
+                HTMLStringToElement(`
+                    <div>
+                        ${i18next.t("dt.you")} ${nbDT} ${i18next.t("dt.caches")}
+                    </div>`));
+        }
     }
 }
 
@@ -768,6 +841,55 @@ class GC_SearchMapPageHandler extends PageHandler {
                 </li>
             </ul>`);
         document.getElementById("cachetur-controls-container").parentElement.append(toAdd);
+    }
+
+    getCurrentCacheDT() {
+        const DTElems = document.querySelectorAll(".attribute-val");
+        let D = DTElems[0].innerHTML;
+        D.replace(",", ".");
+
+        let T = DTElems[1].innerHTML;
+        T.replace(",", ".");
+
+        return {"D": D, "T": T};
+    }
+
+    addDTstat(nbDT) {
+        if (nbDT === "0") {
+            if (document.getElementById("GClh_II_running") &&
+                document.querySelector("gclh_nav#ctl00_gcNavigation")) {
+                    const elems = document.querySelectorAll("div.cache-preview-action-menu")
+                    for (const elem of elems) {
+                        elem.append(HTMLStringToElement(`
+                            <div>
+                                ${i18next.t("dt.new")}
+                            </div>`));
+                    }
+            }
+            document.querySelector("div.header-top").append(
+                HTMLStringToElement(`
+                    <div>
+                        ${i18next.t("dt.new")}
+                    </div>`));
+        } else {
+            if (document.getElementById("GClh_II_running") &&
+                document.querySelector("gclh_nav#ctl00_gcNavigation")) {
+                    const elems = document.querySelectorAll("div.cache-preview-action-menu")
+                    for (const elem of elems) {
+                        elem.append(HTMLStringToElement(`
+                            <div>
+                                ${i18next.t("dt.you")} ${nbDT} ${i18next.t("dt.caches")}
+                            </div>
+                            <br>`));
+                    }
+            }
+            document.querySelector("div.header-top").append(
+                HTMLStringToElement(`
+                    <div>
+                        ${i18next.t("dt.you")} ${nbDT} ${i18next.t("dt.caches")}
+                    </div>
+                    <br>`));
+        }
     }
 }
 
@@ -2722,215 +2844,47 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 */
 
+async function getStatData() {
+    return new Promise((resolve, reject) => {
+        GM_xmlhttpRequest({
+            method: "GET",
+            url: "http://www.geocaching.com/my/statistics.aspx",
+            onload: function (data) {
+                try {
+                    resolve(JSON.parse(data.responseText));
+                } catch (e) {
+                    console.warn("Couldn't load GC statistics");
+                    reject(e);
+                }
+            },
+        });
+        
+    })
+}
+
+// TODO: Remove or make it usable for high find users (matrix analysis), extend page support?
 async function tvinfo() {
-    if (_ctPage === "gc_geocache") {
-        //TODO: ctPage
-        var resultDifficultyTerrainCaches = "";
-
-        GM_xmlhttpRequest({
-            method: "GET",
-            url: "http://www.geocaching.com/my/statistics.aspx",
-            onload: function (response) {
-                obj = $.parseHTML(response.responseText);
-                resultDifficultyTerrainCaches = $(obj).find(
-                    "#DifficultyTerrainCaches"
-                );
-
-                D = $("#ctl00_ContentBody_uxLegendScale").html();
-                D = D.substring(
-                    D.indexOf("stars/stars") + 11,
-                    D.indexOf(".gif")
-                );
-                D = D.replace("_", ".");
-
-                T = $("#ctl00_ContentBody_Localize12").html();
-                T = T.substring(
-                    T.indexOf("stars/stars") + 11,
-                    T.indexOf(".gif")
-                );
-                T = T.replace("_", ".");
-
-                var nbDT = "0";
-                if (resultDifficultyTerrainCaches !== "") {
-                    nbDT = resultDifficultyTerrainCaches
-                        .find(
-                            "#" +
-                                ((D - 1) * 2 + 1) +
-                                "_" +
-                                ((T - 1) * 2 + 1)
-                        )
-                        .text();
-                }
-
-                if (nbDT != "0") {
-                    $("#ctl00_ContentBody_diffTerr").before(
-                        "<div> " +
-                            i18next.t("dt.you") +
-                            "   " +
-                            nbDT +
-                            " " +
-                            i18next.t("dt.caches") +
-                            "</div><br>"
-                    );
-                } else {
-                    $("#ctl00_ContentBody_diffTerr").before(
-                        "<div><strong>" +
-                            i18next.t("dt.new") +
-                            "</strong></p></div><br>"
-                    );
-                    $("#ctl00_ContentBody_uxLegendScale").attr(
-                        "style",
-                        "background-color: lightgreen"
-                    );
-                    $("#ctl00_ContentBody_Localize12").attr(
-                        "style",
-                        "background-color: lightgreen"
-                    );
-                }
-            },
-        });
-    } else if (_ctPage === "gc_map_new") {
-        //TODO: ctPage
-        if (
-            $("#GClh_II_running")[0] &&
-            $("gclh_nav#ctl00_gcNavigation")[0]
-        ) {
-            const delay = (n) =>
-                new Promise((r) => setTimeout(r, n * 2000));
-        }
+    if (!(_ctPageHandler instanceof GC_CachePageHandler ||
+          _ctPageHandler instanceof GC_BrowseMapPageHandler ||
+          _ctPageHandler instanceof GC_SearchMapPageHandler)) {
+            return;
+          }
+    if (_ctPageHandler instanceof GC_SearchMapPageHandler) {
         await waitForElement(".cache-preview-attributes");
-        var resultDifficultyTerrainCaches = "";
-        GM_xmlhttpRequest({
-            method: "GET",
-            url: "http://www.geocaching.com/my/statistics.aspx",
-            onload: function (response) {
-                obj = $.parseHTML(response.responseText);
-                resultDifficultyTerrainCaches = $(obj).find(
-                    "#DifficultyTerrainCaches"
-                );
-                var D =
-                    document.querySelectorAll(".attribute-val")[0]
-                        .innerHTML;
-                D = D.replace(",", ".");
-
-                var T =
-                    document.querySelectorAll(".attribute-val")[1]
-                        .innerHTML;
-                T = T.replace(",", ".");
-
-                var nbDT = "0";
-                if (resultDifficultyTerrainCaches !== "") {
-                    nbDT = resultDifficultyTerrainCaches
-                        .find(
-                            "#" +
-                                ((D - 1) * 2 + 1) +
-                                "_" +
-                                ((T - 1) * 2 + 1)
-                        )
-                        .text();
-                }
-
-                if (nbDT != "0") {
-                    if (
-                        $("#GClh_II_running")[0] &&
-                        $("gclh_nav#ctl00_gcNavigation")[0]
-                    ) {
-                        $("div.cache-preview-action-menu").append(
-                            "<div> " +
-                                i18next.t("dt.you") +
-                                "   " +
-                                nbDT +
-                                " " +
-                                i18next.t("dt.caches") +
-                                "</div><br>"
-                        );
-                    }
-                    $("div.header-top").append(
-                        "<div> " +
-                            i18next.t("dt.you") +
-                            "   " +
-                            nbDT +
-                            " " +
-                            i18next.t("dt.caches") +
-                            "</div><br>"
-                    );
-                } else {
-                    if (
-                        $("#GClh_II_running")[0] &&
-                        $("gclh_nav#ctl00_gcNavigation")[0]
-                    ) {
-                        $("div.cache-preview-action-menu").append(
-                            "<div>" + i18next.t("dt.new") + "</div>"
-                        );
-                    }
-                    $("div.header-top").append(
-                        "<div>" + i18next.t("dt.new") + "</div>"
-                    );
-                }
-            },
-        });
-    } else if (_ctPage === "gc_map") {
-        //TODO: ctPage
+    } else if (_ctPageHandler instanceof GC_BrowseMapPageHandler) {
         await waitForElement(".code");
-        var resultDifficultyTerrainCaches = "";
-        GM_xmlhttpRequest({
-            method: "GET",
-            url: "http://www.geocaching.com/my/statistics.aspx",
-            onload: function (response) {
-                obj = $.parseHTML(response.responseText);
-                resultDifficultyTerrainCaches = $(obj).find(
-                    "#DifficultyTerrainCaches"
-                );
-
-                D = document.querySelectorAll("DD")[1].innerHTML;
-
-                D = D.substring(
-                    D.indexOf("stars/stars") + 11,
-                    D.indexOf(".gif")
-                );
-
-                D = D.replace("_", ".");
-
-                T = document.querySelectorAll("DD")[4].innerHTML;
-
-                T = T.substring(
-                    T.indexOf("stars/stars") + 11,
-                    T.indexOf(".gif")
-                );
-
-                T = T.replace("_", ".");
-
-                var nbDT = "0";
-                if (resultDifficultyTerrainCaches !== "") {
-                    nbDT = resultDifficultyTerrainCaches
-                        .find(
-                            "#" +
-                                ((D - 1) * 2 + 1) +
-                                "_" +
-                                ((T - 1) * 2 + 1)
-                        )
-                        .text();
-                }
-
-                if (nbDT != "0") {
-                    $("#gmCacheInfo").append(
-                        "<div>" +
-                            i18next.t("dt.you") +
-                            " " +
-                            nbDT +
-                            " " +
-                            i18next.t("dt.caches") +
-                            "</div>"
-                    );
-                } else {
-                    $("#gmCacheInfo").append(
-                        "<div>" + i18next.t("dt.new") + "</div>"
-                    );
-                }
-            },
-        });
-    } else {
     }
+
+    const data = await getStatData();
+
+    const resultDifficultyTerrainCaches = data.getElementById("#DifficultyTerrainCaches");
+    const cacheDT = _ctPageHandler.getCurrentCacheDT();
+    
+    let nbDT = "0";
+    if (resultDifficultyTerrainCaches !== "") {
+        nbDT = resultDifficultyTerrainCaches.querySelector(`#${((cacheDT.D - 1) * 2 + 1)}_${((cacheDT.T - 1) * 2 + 1)}`).innerHTML;
+    }
+    _ctPageHandler.addDTstat(nbDT);
 }
 
 
